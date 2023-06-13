@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* border: 2px solid gray; */
+  font-family: 'Orbit', sans-serif;
+}
+
+body {
+  background: rgb(28, 21, 145);
+  background: linear-gradient(
+    90deg,
+    rgba(28, 21, 145, 1) 0%,
+    rgba(181, 95, 179, 1) 36%,
+    rgba(52, 52, 233, 1) 83%,
+    rgba(0, 212, 255, 1) 100%
+  );
+}
+
+header {
+  background: linear-gradient(
+    90deg,
+    rgba(28, 21, 145, 1) 0%,
+    rgba(181, 95, 179, 1) 36%,
+    rgba(52, 52, 233, 1) 83%,
+    rgba(0, 212, 255, 1) 100%
+  );
+  text-align: center;
+  font-size: 2rem;
+  padding: 1rem;
+}
+
+main {
+  height: 100vh;
+}
+.topdown-conatiner {
+  padding: 1rem;
+  border-color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column wrap;
+}
+
+#topdown {
+  /* background-color: rgb(219, 154, 154); */
+  border: 1px solid rgb(0, 232, 23);
+  /* height: 420px;
+  width: 420px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  */
+}
+
+#xyKoordinater {
+  font-size: 1.5rem;
+  color: red;
+}
+
+form {
+  border-color: rgb(0, 247, 148);
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 2rem;
+  font-size: 1.2rem;
+}
+
+#button-wrapper {
+  margin-top: 10px;
+}
+
+#send-button {
+  background-color: #4caf50;
+  border-radius: 0.5rem;
+  color: white;
+  padding: 15px 32px;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+footer {
+  background-color: #1f2937;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  padding: 1em 0;
+  bottom: 0;
+  gap: 1rem;
+}
+.logo {
+  margin-left: 10px;
+}
