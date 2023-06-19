@@ -1,52 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/images/robot.jpg" />
-    <link rel="stylesheet" href="./styles/styles.css" />
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link rel='icon' type='image/x-icon' href='/images/robot.jpg' />
+    <link rel='stylesheet' href='./styles/styles.css' />
     <title>M.O.S.A</title>
   </head>
   <body>
     <header>
-      <h1 class="tittel">PROJECT M.O.S.A.</h1>
+      <h1 class='tittel'>PROJECT M.O.S.A.</h1>
     </header>
     <main>
-      <div class="topdown-conatiner">
+      <div class='topdown-conatiner'>
         <h2>Velg destinasjon</h2>
-        <div id="display-koordinat">Koordinater du sender dukker opp her</div>
-        <canvas id="topdown" width="600px" height="600px"></canvas>
-        <div id="xyKoordinater">Koordinater: (349, 568 )</div>
+        <div id='display-koordinat'>Koordinater du sender dukker opp her</div>
+
+        <div id='topdown' class='topdown'></div>
+        <div id='xyKoordinater'>Koordinater: (349, 568 )</div>
       </div>
-      <form action="#" method="post">
-        <div class="x-kor-wrapper">
-          <label for="x">X-koordinat:</label>
-          <input type="text" id="x" name="x" />
+      <form action='#' method='post'>
+        <div class='x-kor-wrapper'>
+          <label for='x'>X-koordinat:</label>
+          <input type='text' id='x' name='x' />
         </div>
-        <div class="y-kor-wrapper">
-          <label for="y">Y-koordinat:</label>
-          <input type="text" id="y" name="y" />
+        <div class='y-kor-wrapper'>
+          <label for='y'>Y-koordinat:</label>
+          <input type='text' id='y' name='y' />
         </div>
-        <div id="button-wrapper">
-          <input id="send-button" type="submit" value="Send" />
+        <div id='button-wrapper'>
+          <input id='send-button' type='submit' value='Send' />
         </div>
       </form>
     </main>
     <footer>
-      <div class="copyright">&copy; 2023 M.O.S.A.</div>
+      <div class='copyright'>&copy; 2023 M.O.S.A.</div>
       |
-      <div class="logo">
-        <a href="https://github.com/Mosazghi/Robot">
+      <div class='logo'>
+        <a href='https://github.com/Mosazghi/m.o.s.a' target='_blank'>
           <img
-            src="./images/github-logo.png"
-            alt="github"
-            width="30px"
-            height="30px"
-        /></a>
+            src='./images/github-logo.png'
+            alt='github'
+            width='30px'
+            height='30px'
+          /></a>
       </div>
     </footer>
-    <script src="./app.js"></script>
+    <script src='./app.js'></script>
     <!-- <script src="server.js"></script> -->
   </body>
 </html>

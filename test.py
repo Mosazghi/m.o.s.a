@@ -4,7 +4,7 @@ import requests
 startTid = time.time()
 
 while True:
-    req = requests.get("http://localhost:3000/koordinater").json()
+    req = requests.get("http://127.0.0.1:3000/koordinater").json()
     x, y = req["x"], req["y"]
     print(x, y)
     

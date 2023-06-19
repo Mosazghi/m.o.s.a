@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Render } from '@nestjs/common';
 import { KoordinaterService } from '../services/koordinater.service';
 import { SendKoordinaterDto } from '../dto/SendKoordinaterDto';
 

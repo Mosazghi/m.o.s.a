@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { KoordinaterService } from './services/koordinater.service';
 import { KoordinaterController } from './controllers/koordinater.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Koordinat, KoordinatSchema } from './schema/koordinat.schema';
+import { KoordinatSchema } from './schema/koordinat.schema';
 
 @Module({
   imports: [

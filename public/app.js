@@ -1,4 +1,5 @@
 const canvas = document.getElementById('topdown');
+
 canvas.addEventListener('click', (e) => {
   const x = e.clientX - canvas.offsetLeft;
   const y = e.clientY - canvas.offsetTop;
@@ -25,6 +26,7 @@ form.addEventListener('submit', async (e) => {
         'Content-type': 'application/json; charset=UTF-8',
       },
     });
+
     await displayKoordinat();
   } else console.log('MÅ inneholde begge koordinater!');
 });
@@ -51,66 +53,58 @@ canvas.addEventListener('mouseleave', (e) => {
   document.getElementById('xyKoordinater').innerHTML = '';
 });
 
-// GRID
-// // Box width
-// var bw = 580;
-// // Box height
-// var bh = 580;
-// // Padding
-// var p = 10;
+const SIZE = 24;
 
-// var context = canvas.getContext("2d");
-// function drawBoard() {
-//   for (var x = 0; x <= bw; x += 15) {
-//     context.moveTo(0.5 + x + p, p);
-//     context.lineTo(0.5 + x + p, bh + p);
+const tp = document.getElementById('topdown');
+tp.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
+tp.style.gridTemplateRows = `repeat(${SIZE}, 1fr)`;
+
+for (let k = 0; k < SIZE * SIZE; k++) {
+  const element = document.createElement('div');
+  element.className = 'grid-element';
+  canvas.appendChild(element);
+  element.addEventListener('click', (e) => {
+    element.style.backgroundColor = 'red';
+  });
+}
+
+// var scene = document.getElementById('topdown');
+// var ctx = scene.getContext('2d');
+
+// scene.width = 600;
+// scene.height = 600;
+// function drawGrid(startX, startY, endX, endY, gridCellSize) {
+//   ctx.beginPath();
+//   ctx.lineWidth = 1;
+
+//   for (x = startX; x <= endX; x += gridCellSize) {
+//     ctx.moveTo(x, startY);
+//     ctx.lineTo(x, endY);
 //   }
 
-//   for (var x = 0; x <= bh; x += 15) {
-//     context.moveTo(p, 0.5 + x + p);
-//     context.lineTo(bw + p, 0.5 + x + p);
+//   for (y = startY; y <= endY; y += gridCellSize) {
+//     ctx.moveTo(startX, y);
+//     ctx.lineTo(endX, y);
 //   }
-//   context.strokeStyle = "black";
-//   context.stroke();
+
+//   ctx.strokeStyle = '#ffffff';
+//   ctx.stroke();
+//   ctx.closePath();
 // }
-// drawBoard();
-var scene = document.getElementById('topdown');
-var ctx = scene.getContext('2d');
 
-scene.width = 600;
-scene.height = 600;
-function drawGrid(startX, startY, endX, endY, gridCellSize) {
-  ctx.beginPath();
-  ctx.lineWidth = 1;
+// function main() {
+//   ctx.clearRect(0, 0, scene.width, scene.height);
+//   ctx.fillStyle = '#000000';
+//   ctx.fillRect(0, 0, scene.width, scene.height);
 
-  for (x = startX; x <= endX; x += gridCellSize) {
-    ctx.moveTo(x, startY);
-    ctx.lineTo(x, endY);
-  }
+//   drawGrid(0, 0, scene.width, scene.height, 15);
+//   ctx.strokeStyle = '#fff';
+//   ctx.moveTo(0, 0);
+//   ctx.lineTo(200, 100);
+//   ctx.stroke();
+//   requestAnimationFrame(main);
+// }
 
-  for (y = startY; y <= endY; y += gridCellSize) {
-    ctx.moveTo(startX, y);
-    ctx.lineTo(endX, y);
-  }
-
-  // ctx.strokeStyle = "#ffffff";
-  // ctx.stroke();
-  // ctx.closePath();
-}
-
-function main() {
-  ctx.clearRect(0, 0, scene.width, scene.height);
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(0, 0, scene.width, scene.height);
-
-  drawGrid(0, 0, scene.width, scene.height, 15);
-  ctx.strokeStyle = '#fff';
-  ctx.moveTo(0, 0);
-  ctx.lineTo(200, 100);
-  ctx.stroke();
-  requestAnimationFrame(main);
-}
-
-window.onload = function () {
-  main();
-};
+// window.onload = function () {
+//   main();
+// };
