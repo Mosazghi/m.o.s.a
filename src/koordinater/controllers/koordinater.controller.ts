@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Render } from '@nestjs/common';
-import { KoordinaterService } from '../services/koordinater.service';
+import { Body, Controller, Get, Post, Render } from '@nestjs/common';
 import { SendKoordinaterDto } from '../dto/SendKoordinaterDto';
+import { KoordinaterService } from '../services/koordinater.service';
 
 @Controller('koordinater')
 export class KoordinaterController {
@@ -14,6 +14,6 @@ export class KoordinaterController {
 
   @Post()
   sendKoordinater(@Body() koordinat: SendKoordinaterDto) {
-    this.koordinaterService.postKoordinat(koordinat);
+    console.log('POST:', koordinat);
   }
 }

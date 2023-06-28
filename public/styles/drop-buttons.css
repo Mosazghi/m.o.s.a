@@ -1,0 +1,87 @@
+.drop-button {
+  cursor: pointer;
+  width: 60px;
+  height: 70px;
+  border-radius: 15px;
+  font-weight: 900;
+  touch-action: manipulation;
+  transition: box-shadow 0.2s, -ms-transform 0.1s, -webkit-transform 0.1s,
+    transform 0.1s;
+}
+
+.drop-button-wrapper {
+  height: 100%;
+  display: flex;
+  border-radius: 5px;
+  justify-content: space-between;
+  align-items: flex-end;
+  align-content: end;
+  padding-left: 1rem;
+  padding-bottom: 1.2rem;
+}
+
+#drop-1 {
+  border: 2px solid yellow;
+}
+#drop-2 {
+  border: 2px solid red;
+}
+#drop-3 {
+  border: 2px solid blue;
+}
+#drop-4 {
+  border: 2px solid green;
+}
+
+#drop-1:hover {
+  background-color: rgb(181, 181, 54);
+  opacity: 0.5;
+}
+#drop-2:hover {
+  background-color: rgb(181, 67, 54);
+  opacity: 0.5;
+}
+#drop-3:hover {
+  background-color: rgb(56, 54, 181);
+  opacity: 0.5;
+}
+#drop-4:hover {
+  background-color: rgb(79, 181, 54);
+  opacity: 0.5;
+}
+
+.drop-button:active {
+  border-bottom-color: #a2a6ac;
+}
+
+.drop-button:active:hover {
+  border-bottom-color: #a2a6ac;
+}
+
+.drop-button:hover {
+  border-color: #a2a6ac #979aa1 #82858a;
+}
+
+.drop-button:focus {
+  border-color: #e77600;
+  box-shadow: rgba(228, 121, 17, 0.5) 0 0 3px 2px;
+  outline: 0;
+}
+
+.drop-button:focus-visible {
+  box-shadow: #222222 0 0 0 2px, rgba(255, 255, 255, 0.8) 0 0 0 4px;
+  transition: box-shadow 0.2s;
+}
+
+.drop-button:active {
+  background-color: #f7f7f7;
+  border-color: #000000;
+  transform: scale(0.96);
+}
+
+.drop-button:disabled {
+  border-color: #dddddd;
+  color: #dddddd;
+  cursor: not-allowed;
+  opacity: 1;
+}

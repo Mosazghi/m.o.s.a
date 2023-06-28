@@ -1,4 +1,4 @@
 export class SendKoordinaterDto {
-  x: number;
-  y: number;
+  komponent: string;
+  antall: number;
 }
