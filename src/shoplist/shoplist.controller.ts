@@ -17,5 +17,9 @@ export class ShoplistController {
     //bruker.passport.user
     const user = await this.userService.findById(bruker.passport.user);
     console.log('Bestilt av', user.username, 'varer:', shoplist);
+    return await this.shoplistService.bestillKomponenter(
+      user.username,
+      shoplist,
+    );
   }
 }
