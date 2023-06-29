@@ -1,15 +1,21 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Session, UseGuards } from '@nestjs/common';
+import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
+import { UserService } from 'src/user/user.service';
 import { CreateShoplistDto } from './dto/create-shoplist.dto';
 import { ShoplistService } from './shoplist.service';
-import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 
 @Controller('dashboard')
 export class ShoplistController {
-  constructor(private readonly shoplistService: ShoplistService) {}
+  constructor(
+    private readonly shoplistService: ShoplistService,
+    private readonly userService: UserService,
+  ) {}
 
   @UseGuards(AuthenticatedGuard)
   @Post()
-  logg() {
-    console.log('POST!!!');
+  async logg(@Body() shoplist, @Session() bruker) {
+    //bruker.passport.user
+    const user = await this.userService.findById(bruker.passport.user);
+    console.log('Bestilt av', user.username, 'varer:', shoplist);
   }
 }

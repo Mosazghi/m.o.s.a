@@ -53,7 +53,7 @@ async function sendData() {
   }
   console.log('form', JSON.stringify(formData));
   try {
-    const res = await fetch('/koordinater', {
+    const res = await fetch('/dashboard', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
