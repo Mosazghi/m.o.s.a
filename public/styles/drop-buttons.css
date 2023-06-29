@@ -20,32 +20,32 @@
   padding-bottom: 1.2rem;
 }
 
-#drop-1 {
+#drop-sted1 {
   border: 2px solid yellow;
 }
-#drop-2 {
+#drop-sted2 {
   border: 2px solid red;
 }
-#drop-3 {
+#drop-sted3 {
   border: 2px solid blue;
 }
-#drop-4 {
+#drop-sted4 {
   border: 2px solid green;
 }
 
-#drop-1:hover {
+#drop-sted1:hover {
   background-color: rgb(181, 181, 54);
   opacity: 0.5;
 }
-#drop-2:hover {
+#drop-sted2:hover {
   background-color: rgb(181, 67, 54);
   opacity: 0.5;
 }
-#drop-3:hover {
+#drop-sted3:hover {
   background-color: rgb(56, 54, 181);
   opacity: 0.5;
 }
-#drop-4:hover {
+#drop-sted4:hover {
   background-color: rgb(79, 181, 54);
   opacity: 0.5;
 }

@@ -24,16 +24,22 @@
           <h2>Velg destinasjon</h2>
           <div id='topdown' class='topdown'>
             <div class='drop-button-wrapper'>
-              <button class='drop-button' id='drop-1'>Drop 1</button>
-              <button class='drop-button' id='drop-2'>Drop 2</button>
-              <button class='drop-button' id='drop-3'>Drop 3</button>
-              <button class='drop-button' id='drop-4'>Drop 4</button>
+              <button class='drop-button' id='drop-sted1'>Drop 1</button>
+              <button class='drop-button' id='drop-sted4'>Drop 4</button>
+              <button class='drop-button' id='drop-sted2'>Drop 2</button>
+              <button class='drop-button' id='drop-sted3'>Drop 3</button>
             </div>
           </div>
         </div>
         <div class='container'>
-          <div id='test'></div>
           <div class='send-wrapper'>
+            <select class='form-select' name='drop-sted' id='drop-sted'>
+              <option selected>Velg dropsted</option>
+              <option value='drop-sted1'>drop-sted1</option>
+              <option value='drop-sted2'>drop-sted2</option>
+              <option value='drop-sted3'>drop-sted3</option>
+              <option value='drop-sted4'>drop-sted4</option>
+            </select>
             <select class='form-select' name='komponent' id='komponent'>
               <option selected>Velg komponent</option>
               <option value='2k Motstand'>2k Motstand</option>
@@ -46,8 +52,8 @@
               id='antall'
               type='number'
               placeholder='Velg antall...'
-              {{!-- min='1'
-              max='5' --}}
+              {{! min='1'
+              max='5' }}
             />
             <button class='btn' id='legg-mer-button'>+</button>
           </div>
@@ -79,6 +85,5 @@
       </div>
     </footer>
     <script src='./app.js'></script>
-    <!-- <script src="server.js"></script> -->
   </body>
 </html>

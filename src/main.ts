@@ -13,6 +13,7 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('hbs');
 
+  // Logger alle requests til konsollen
   app.use((req, res, next) => {
     console.log(`HTTP Method - ${req.method}, URL - ${req.url}`);
     next();
@@ -23,13 +24,13 @@ async function bootstrap() {
       secret: 'PLSWORKFORME',
       resave: false,
       saveUninitialized: false,
-    }), // fungerer dette?
+    }), 
   );
   app.use(passport.initialize());
   app.use(passport.session());
 
   await app.listen(PORT, 'localhost', () => {
-    console.log(`Server listening on port http://localhost:${PORT}`);
+    console.log(`Lytter på http://localhost:${PORT}`);
   });
 }
 bootstrap();

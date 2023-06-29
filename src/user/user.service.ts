@@ -20,19 +20,15 @@ export class UserService {
     } else return null;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return await this.userModel.find().exec();
   }
 
-  async findOne(username) {
+  async findOneByUsername(username) {
     return await this.userModel.findOne({ username: username });
   }
 
   async findById(id) {
     return await this.userModel.findById(id);
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }
