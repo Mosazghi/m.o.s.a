@@ -28,15 +28,14 @@ export class KomponentService {
   async update(id: string, antallBestilt: number) {
     const komponent = await this.komponentModel.findOne({ navn: id });
     if (komponent) {
-      if (komponent.antall > antallBestilt) {
-        const nyAntall = komponent.antall - antallBestilt;
-        komponent.antall = nyAntall;
-        await komponent.save();
-        return komponent.antall;
-      } else return null;
-    } else return null;
+      if (komponent.antall >= antallBestilt) {
+        komponent.antall -= antallBestilt;
+        return await komponent.save();
+      } else {
+        return null;
+      }
+    }
   }
-
   remove(id: number) {
     return `This action removes a #${id} komponent`;
   }

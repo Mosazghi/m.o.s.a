@@ -37,12 +37,21 @@ export class KomponentController {
     @Body('antall') antallBestilt: number,
     @Res() res,
   ) {
-    const oppdatertKompAntall = await this.komponentService.update(
+    const oppdatertKomponent = await this.komponentService.update(
       id,
       antallBestilt,
     );
-    oppdatertKompAntall
-      ? res.send(`Komponent oppdatert med ${oppdatertKompAntall} igjen!`)
+
+    console.log(
+      oppdatertKomponent
+        ? `${oppdatertKomponent.navn} oppdatert med ${oppdatertKomponent.antall} igjen!`
+        : 'Komponenten finnes ikke/ikke tilstrekklig igjen!',
+    );
+
+    oppdatertKomponent
+      ? res.send(
+          `${oppdatertKomponent.navn} oppdatert med ${oppdatertKomponent.antall} igjen!`,
+        )
       : res.send('Komponenten finnes ikke/ikke tilstrekklig igjen!');
   }
 

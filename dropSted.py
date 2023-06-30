@@ -21,7 +21,8 @@ forrige_data = ''
 #     print('Connected to WiFi')
 #     print('IP address:', sta_if.ifconfig()[0])
 
-url = 'http://localhost:4000/dashboard/bestilling'
+get_url = 'http://localhost:4000/dashboard/api/bestilling'
+patch_url = 'http://localhost:4000/komponent/api/'
 
 def kjorTilHjem():
     print("Kjører tilbake til ladestasjon...")
@@ -30,7 +31,7 @@ def kjorTilHjem():
 
 def getBestilling():
     global forrige_data  
-    res = requests.get(url)
+    res = requests.get(get_url)
     if res.status_code == 200:
         data = res.json()
         if data != forrige_data:
@@ -45,17 +46,20 @@ def getBestilling():
 
 
 def handleKomponenter(bestilling):
-    print("len: ",len(bestilling))
+    print("antall komp til bestilling: ",len(bestilling))
+
     for komponent in bestilling:
         navn = komponent['Komponent']
         antall = komponent['Antall']
+        requests.patch(patch_url + navn, data={'antall': antall})
         # print("komponent: ", komponent)
-        if(navn == 'LED'):
-            print(f'Henter {antall}  LEDs... ')
-        elif(navn == 'Motstand'):
-            print(f'Henter {antall} motstander...')
-        elif(navn == 'Bryter'):
-            print(f'Henter {antall} brytere... ')
+        if antall: 
+            if(navn == 'LED'):
+                print(f'Henter {antall}  LEDs... ')
+            elif(navn == 'Motstand'):
+                print(f'Henter {antall} motstander...')
+            elif(navn == 'Bryter'):
+                print(f'Henter {antall} brytere... ')
 
 def kjorTilDropSted(dropNr):
     if dropNr == 1:

@@ -1,25 +1,40 @@
+//--------------------Interaktivt topdown (knapper)--------------------
 const buttons = document.getElementsByClassName('drop-button');
 const dropSted = document.getElementById('drop-sted');
 
-// Interaktiv topdown
 for (let i = 0; i < buttons.length; i++) {
   buttons[i].addEventListener('click', () => {
     dropSted.value = buttons[i].getAttribute('title');
   });
 }
 
+//--------------------Legger til komponenter i tabell--------------------
 const liste = document.getElementById('liste').getElementsByTagName('tbody')[0]; // tabell body
 const leggMerButton = document.getElementById('legg-mer-button');
 
-leggMerButton.addEventListener('click', () => {
-  let row = liste.insertRow();
-  let kompNavn = row.insertCell(0);
-  let ant = row.insertCell(1);
+const erIkkeKomponent = 'Velg komponent' || '';
 
-  kompNavn.innerHTML = document.getElementById('komponent').value;
-  ant.innerHTML = document.getElementById('antall').value;
+leggMerButton.addEventListener('click', () => {
+  if (document.getElementById('komponent').value !== erIkkeKomponent) {
+    let row = liste.insertRow();
+    let kompNavn = row.insertCell(0);
+    let ant = row.insertCell(1);
+
+    kompNavn.innerHTML = document.getElementById('komponent').value;
+    ant.innerHTML = document.getElementById('antall').value;
+
+    for (let i = 0; i < liste.rows.length - 1; i++) {
+      if (liste.rows[i].cells[0].innerHTML === kompNavn.innerHTML) {
+        liste.deleteRow(liste.rows[i].rowIndex - 1);
+      }
+    }
+
+    komponent.value = '';
+    antall.value = '';
+  }
 });
 
+//--------------------Sender data til serveren--------------------
 document.getElementById('bestill-button').addEventListener('click', sendData);
 
 async function sendData() {
@@ -64,9 +79,10 @@ async function sendData() {
   }
 }
 
+//--------------------Henter komponenter fra databasen--------------------
 async function getKomponenter() {
-  const listeOerKomponenter = document.getElementById('komponent');
-  const listeOverAntall = document.getElementById('antall');
+  const listeOverKomponenter = document.getElementById('komponent');
+  let listeOverAntall = document.getElementById('antall');
 
   const komponenter = await fetch('/komponent/api/komponenter', {
     method: 'GET',
@@ -76,18 +92,25 @@ async function getKomponenter() {
 
   for (let i = 0; i < data.length; i++) {
     const navn = data[i].navn;
-    const valg = document.createElement('option');
-    valg.value = valg.innerHTML = navn;
-    listeOerKomponenter.appendChild(valg);
+    const antall = data[i].antall;
 
-    valg.setAttribute('data-max', data[i].antall);
+    if (antall) {
+      const valg = document.createElement('option');
+      valg.value = valg.innerHTML = navn;
+      listeOverKomponenter.appendChild(valg);
+
+      valg.setAttribute('data-max', data[i].antall);
+    }
   }
+  listeOverKomponenter.addEventListener('change', (e) => {
+    const selectedOption = e.target.selectedOptions[0];
+    const maxVal = selectedOption.getAttribute('data-max');
+    listeOverAntall.value = maxVal;
+    listeOverAntall.setAttribute('max', maxVal);
+    listeOverAntall.setAttribute(
+      'onkeyup',
+      `if(this.value > ${maxVal}) this.value = ${maxVal}`,
+    );
+  });
 }
 getKomponenter();
-const select = document.getElementById('komponent');
-const quantityInput = document.getElementById('antall');
-select.addEventListener('change', (event) => {
-  const selectedOption = event.target.selectedOptions[0];
-  const maxQuantity = selectedOption.getAttribute('data-max');
-  quantityInput.setAttribute('max', maxQuantity);
-});

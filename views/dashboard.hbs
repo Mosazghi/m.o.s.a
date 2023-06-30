@@ -35,14 +35,24 @@
         </div>
         <div class='container'>
           <div class='send-wrapper'>
-            <select class='form-select' name='drop-sted' id='drop-sted'>
+            <select
+              name='drop-sted'
+              class='form-select'
+              id='drop-sted'
+              title='Velg dropsted'
+            >
               <option selected>Velg dropsted</option>
               <option value='1'>1</option>
               <option value='2'>2</option>
               <option value='3'>3</option>
               <option value='4'>4</option>
             </select>
-            <select class='form-select' name='komponent' id='komponent'>
+            <select
+              class='form-select'
+              name='komponent'
+              id='komponent'
+              title='Velg komponent'
+            >
               <option selected>Velg komponent</option>
             </select>
             <input
@@ -51,9 +61,14 @@
               id='antall'
               type='number'
               placeholder='Velg antall...'
+              title='Velg antall'
               min='1'
             />
-            <button class='btn' id='legg-mer-button'>+</button>
+            <button
+              class='btn'
+              id='legg-mer-button'
+              title='Legg til i bestillingen'
+            >+</button>
           </div>
           <table class='table' id='liste'>
             <thead>
@@ -65,7 +80,8 @@
             <tbody>
             </tbody>
           </table>
-          <button class='btn btn-danger' id='bestill-button'> Bestill</button>
+          <button type='submit' class='btn btn-danger' id='bestill-button'>
+            Bestill</button>
         </div>
       </div>
     </main>
