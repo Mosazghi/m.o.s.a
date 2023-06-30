@@ -12,13 +12,14 @@ export class ShoplistService {
 
   async bestillKomponenter(
     bruker: string,
-    dropSted: string,
+    dropSted: number,
     komponenter: ShoplistType[],
   ) {
     const bestillingInfo = { bruker, dropSted, komponenter };
-    const bestill = await new this.shoplistModel(bestillingInfo);
+    const bestill = new this.shoplistModel(bestillingInfo);
     console.log('BESTILL, SAVE:', bestill);
-    return bestill.save();
+    await bestill.save();
+    return bestill;
   }
 
   async getBestilling() {

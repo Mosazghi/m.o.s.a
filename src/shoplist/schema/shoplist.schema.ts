@@ -10,7 +10,7 @@ export class Shoplist {
   bruker: string;
 
   @Prop({ required: true })
-  dropSted: string;
+  dropSted: number;
 
   @Prop({ required: true })
   komponenter: ShoplistType[];

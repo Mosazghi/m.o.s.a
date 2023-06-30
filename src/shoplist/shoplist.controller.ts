@@ -19,7 +19,7 @@ export class ShoplistController {
   ) {}
 
   @UseGuards(AuthenticatedGuard)
-  @Post()
+  @Post('api/bestill')
   async logg(@Body() shoplist, @Session() bruker, @Res() res) {
     const dropSted = shoplist[0]; // Dropsted er ALLTID det første element i arrayet
 
@@ -46,8 +46,7 @@ export class ShoplistController {
       komponenter,
     );
   }
-
-  @Get('/bestilling')
+  @Get('api/bestilling')
   async getBestilling() {
     const bestilling = this.shoplistService.getBestilling();
     return bestilling;

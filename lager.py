@@ -4,6 +4,8 @@
 # # import time
 # # import machine
 import json
+import requests
+
 
 # # WiFi
 # ssid = 'Weini2.4G'
@@ -65,8 +67,8 @@ def main():
     #         LED.value(0)
     #     time.sleep(intervall)
     #     print(dropNr)
-    test = {"motstand2k": 2}
-    print(test.get(0))
+    req = requests.get('http://localhost:4000/dashboard/bestilling').json()
+    print(req['dropSted'])
 
 if __name__ == '__main__':
     main()

@@ -16,7 +16,9 @@
   </head>
   <body>
     <header>
-      <h1 class='tittel'>PROJECT M.O.S.A. | Hi {{username}}, {{pass}} </h1>
+      <h1 class='tittel'>PROJECT M.O.S.A. | Dashboard </h1>
+      <h3 style='text-align: center;'>Velkommen tilbake {{username}}!</h3>
+      <h5 style='text-align: center;'><a href='/user/logut'>Logg ut?</a></h5>
     </header>
     <main>
       <div class='topdown-conatiner'>
@@ -24,10 +26,10 @@
           <h2>Velg destinasjon</h2>
           <div id='topdown' class='topdown'>
             <div class='drop-button-wrapper'>
-              <button class='drop-button' id='drop-sted1'>Drop 1</button>
-              <button class='drop-button' id='drop-sted4'>Drop 4</button>
-              <button class='drop-button' id='drop-sted2'>Drop 2</button>
-              <button class='drop-button' id='drop-sted3'>Drop 3</button>
+              <button class='drop-button' id='drop-sted1' title='1'>Drop 1</button>
+              <button class='drop-button' id='drop-sted2' title='2'>Drop 2</button>
+              <button class='drop-button' id='drop-sted3' title='3'>Drop 3</button>
+              <button class='drop-button' id='drop-sted4' title='4'>Drop 4</button>
             </div>
           </div>
         </div>
@@ -35,16 +37,13 @@
           <div class='send-wrapper'>
             <select class='form-select' name='drop-sted' id='drop-sted'>
               <option selected>Velg dropsted</option>
-              <option value='drop-sted1'>drop-sted1</option>
-              <option value='drop-sted2'>drop-sted2</option>
-              <option value='drop-sted3'>drop-sted3</option>
-              <option value='drop-sted4'>drop-sted4</option>
+              <option value='1'>1</option>
+              <option value='2'>2</option>
+              <option value='3'>3</option>
+              <option value='4'>4</option>
             </select>
             <select class='form-select' name='komponent' id='komponent'>
               <option selected>Velg komponent</option>
-              <option value='2k Motstand'>2k Motstand</option>
-              <option value='3k Motstand'>3k Motstand</option>
-              <option value='4k Motstand'>4k Motstand</option>
             </select>
             <input
               class='number'
@@ -52,15 +51,14 @@
               id='antall'
               type='number'
               placeholder='Velg antall...'
-              {{! min='1'
-              max='5' }}
+              min='1'
             />
             <button class='btn' id='legg-mer-button'>+</button>
           </div>
           <table class='table' id='liste'>
             <thead>
               <tr>
-                <th>komponent</th>
+                <th>Komponent</th>
                 <th>Antall</th>
               </tr>
             </thead>

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Next,
   Post,
@@ -34,6 +35,17 @@ export class UserController {
     console.log('LOGGED IN', req.isAuthenticated());
     if (req) {
       res.redirect('/dashboard');
-    } else res.send('/'); // <- TODO: faktiskt redirecte tilbake til login
+    } else res.send('/'); // <- TODO: faktiskt redirecte tilbake til login (hvis bruker ikke finnes)
+  }
+
+  @Get('/logut')
+  async logout(@Request() req, @Response() res, @Next() next) {
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      console.log('LOGGET UT', req.isAuthenticated());
+      res.redirect('/');
+    });
   }
 }

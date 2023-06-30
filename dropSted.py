@@ -1,51 +1,91 @@
-import network
-import urequests
+# import network
+# import urequests
 import time
-import machine
-
-ssid = 'Weini2.4G'
-password = '20052009'
-url = 'http://10.0.0.13:4000/koordinater'
+# import machine
+import json
+import requests
+# ssid = 'Weini2.4G'
+# password = '20052009'
 intervall = 5 
-LED = machine.Pin(2, machine.Pin.OUT)
+# LED = machine.Pin(2, machine.Pin.OUT)
 forrige_data = ''
 
-def connect_to_wifi():
-    sta_if = network.WLAN(network.STA_IF)
-    if not sta_if.isconnected():
-        print('Connecting to WiFi...')
-        sta_if.active(True)
-        sta_if.connect(ssid, password)
-        while not sta_if.isconnected():
-            pass
-    print('Connected to WiFi')
-    print('IP address:', sta_if.ifconfig()[0])
+# def connect_to_wifi():
+#     sta_if = network.WLAN(network.STA_IF)
+#     if not sta_if.isconnected():
+#         print('Connecting to WiFi...')
+#         sta_if.active(True)
+#         sta_if.connect(ssid, password)
+#         while not sta_if.isconnected():
+#             pass
+#     print('Connected to WiFi')
+#     print('IP address:', sta_if.ifconfig()[0])
 
-def getDropNr():
+url = 'http://localhost:4000/dashboard/bestilling'
+
+def kjorTilHjem():
+    print("Kjører tilbake til ladestasjon...")
+
+
+
+def getBestilling():
     global forrige_data  
-    res = urequests.get(url)
+    res = requests.get(url)
     if res.status_code == 200:
         data = res.json()
         if data != forrige_data:
-            print('Received new value:', data)
+            print('Ny bestilling:', data)
             forrige_data = data
-            dropNr = data["drop"]
-            return dropNr
+            bruker = data["bruker"]
+            dropNr = data["dropSted"]
+            komponenter = data["komponenter"]
+            return bruker, dropNr, komponenter
     res.close()
-    return None
+    return None, None, None
+
+
+def handleKomponenter(bestilling):
+    print("len: ",len(bestilling))
+    for komponent in bestilling:
+        navn = komponent['Komponent']
+        antall = komponent['Antall']
+        # print("komponent: ", komponent)
+        if(navn == 'LED'):
+            print(f'Henter {antall}  LEDs... ')
+        elif(navn == 'Motstand'):
+            print(f'Henter {antall} motstander...')
+        elif(navn == 'Bryter'):
+            print(f'Henter {antall} brytere... ')
+
+def kjorTilDropSted(dropNr):
+    if dropNr == 1:
+        print("Kjører til dropsted 1")
+    elif dropNr == 2:
+        print("Kjører til dropsted 2")
+    elif dropNr == 3:
+        print("Kjører til dropsted 3")
+    elif dropNr == 4:
+        print("Kjører til dropsted 4")
 
 def main():
-    connect_to_wifi()
+    # connect_to_wifi()
     while True:
-        dropNr = getDropNr()
-        if dropNr is not None:
+        bruker, dropNr, komponenter = getBestilling()
+        if bruker != None and dropNr != None and komponenter != None:
             # Hovedkode her: 
+            print("------------------")
+            print("Bruker:", bruker)
             print("Dropsted:", dropNr)
-            LED.value(1)
+            print("Komponenter:", komponenter)
+            print("------------------")
+            handleKomponenter(komponenter)
+            time.sleep(3)
+            kjorTilDropSted(dropNr)
+            time.sleep(3)
+            kjorTilHjem()
         else:
-            LED.value(0)
+            print("Ingen nye bestillinger")
         time.sleep(intervall)
-        print(dropNr)
 
 if __name__ == '__main__':
     main()

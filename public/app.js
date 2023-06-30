@@ -4,7 +4,7 @@ const dropSted = document.getElementById('drop-sted');
 // Interaktiv topdown
 for (let i = 0; i < buttons.length; i++) {
   buttons[i].addEventListener('click', () => {
-    dropSted.value = buttons[i].getAttribute('id');
+    dropSted.value = buttons[i].getAttribute('title');
   });
 }
 
@@ -50,7 +50,7 @@ async function sendData() {
   console.log('form', shoplist);
 
   try {
-    const res = await fetch('/dashboard', {
+    const res = await fetch('/dashboard/api/bestill', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,3 +63,31 @@ async function sendData() {
     console.error(error);
   }
 }
+
+async function getKomponenter() {
+  const listeOerKomponenter = document.getElementById('komponent');
+  const listeOverAntall = document.getElementById('antall');
+
+  const komponenter = await fetch('/komponent/api/komponenter', {
+    method: 'GET',
+  });
+
+  const data = await komponenter.json();
+
+  for (let i = 0; i < data.length; i++) {
+    const navn = data[i].navn;
+    const valg = document.createElement('option');
+    valg.value = valg.innerHTML = navn;
+    listeOerKomponenter.appendChild(valg);
+
+    valg.setAttribute('data-max', data[i].antall);
+  }
+}
+getKomponenter();
+const select = document.getElementById('komponent');
+const quantityInput = document.getElementById('antall');
+select.addEventListener('change', (event) => {
+  const selectedOption = event.target.selectedOptions[0];
+  const maxQuantity = selectedOption.getAttribute('data-max');
+  quantityInput.setAttribute('max', maxQuantity);
+});
