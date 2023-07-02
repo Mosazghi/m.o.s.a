@@ -12,15 +12,19 @@ for (let i = 0; i < buttons.length; i++) {
 const liste = document.getElementById('liste').getElementsByTagName('tbody')[0]; // tabell body
 const leggMerButton = document.getElementById('legg-mer-button');
 
-const erIkkeKomponent = 'Velg komponent' || '';
+//create a new variable that checks if it's "velg komponent" or empty string
 
 leggMerButton.addEventListener('click', () => {
-  if (document.getElementById('komponent').value !== erIkkeKomponent) {
+  const valgtKomponent = document.getElementById('komponent').value;
+  const erUgyldig =
+    valgtKomponent === 'Velg komponent' || valgtKomponent === '';
+
+  if (!erUgyldig) {
     let row = liste.insertRow();
     let kompNavn = row.insertCell(0);
     let ant = row.insertCell(1);
 
-    kompNavn.innerHTML = document.getElementById('komponent').value;
+    kompNavn.innerHTML = valgtKomponent;
     ant.innerHTML = document.getElementById('antall').value;
 
     for (let i = 0; i < liste.rows.length - 1; i++) {
@@ -29,7 +33,7 @@ leggMerButton.addEventListener('click', () => {
       }
     }
 
-    komponent.value = '';
+    komponent.value = 'Velg komponent';
     antall.value = '';
   }
 });
