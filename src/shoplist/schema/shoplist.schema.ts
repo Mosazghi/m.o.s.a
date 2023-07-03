@@ -12,7 +12,7 @@ export class Shoplist {
   @Prop({ required: true })
   dropSted: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, isnotempty: true })
   komponenter: ShoplistType[];
 }
 

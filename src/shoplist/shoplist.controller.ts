@@ -27,24 +27,22 @@ export class ShoplistController {
     // Ser egentlig sånn ut: shoplist = [dropSted, [komponenter]]
     const [komponenter] = shoplist.slice(1);
 
-    const user = await this.userService.findById(bruker.passport.user);
+    if (komponenter.length > 0) {
+      const user = await this.userService.findById(bruker.passport.user);
 
-    console.log(
-      'Bestilt av',
-      user.username,
-      'dropSted:',
-      dropSted,
-      'varer:',
-      komponenter,
-    );
+      console.log('shoplist:', shoplist);
 
-    res.send({ user, dropSted, komponenter }); // Respond med bruker, dropSted og komponenter
+      res.send({ user, dropSted, komponenter }); // Respond med bruker, dropSted og komponenter
 
-    return await this.shoplistService.bestillKomponenter(
-      user.username,
-      dropSted,
-      komponenter,
-    );
+      return await this.shoplistService.bestillKomponenter(
+        user.username,
+        dropSted,
+        komponenter,
+      );
+    } else {
+      res.json({ error: 'Du har ikke valgt noen komponenter å bestille' });
+      return null;
+    }
   }
   @Get('api/bestilling')
   async getBestilling() {

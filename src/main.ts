@@ -4,14 +4,16 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 const PORT = 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
-  app.setViewEngine('hbs');
+  app.setViewEngine('ejs');
 
   // Logger alle requests til konsollen
   app.use((req, res, next) => {
@@ -24,7 +26,7 @@ async function bootstrap() {
       secret: 'PLSWORKFORME',
       resave: false,
       saveUninitialized: false,
-    }), 
+    }),
   );
   app.use(passport.initialize());
   app.use(passport.session());
