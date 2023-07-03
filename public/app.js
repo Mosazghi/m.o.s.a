@@ -1,39 +1,49 @@
-const canvas = document.getElementById('topdown');
-
-canvas.addEventListener('click', (e) => {
-  const x = e.clientX - canvas.offsetLeft;
-  const y = e.clientY - canvas.offsetTop;
-  document.getElementById('x').value = x;
-  document.getElementById('y').value = y;
-  console.log(`(${x}, ${y})`);
-});
-
+//--------------------Interaktivt topdown (knapper)--------------------
 const buttons = document.getElementsByClassName('drop-button');
-const test = document.getElementById('test');
+const dropSted = document.getElementById('drop-sted');
 
 for (let i = 0; i < buttons.length; i++) {
   buttons[i].addEventListener('click', () => {
-    test.innerHTML = buttons[i].getAttribute('id');
+    dropSted.value = buttons[i].getAttribute('title');
   });
 }
 
-const liste = document.getElementById('liste').getElementsByTagName('tbody')[0];
+//--------------------Legger til komponenter i tabell--------------------
+const liste = document.getElementById('liste').getElementsByTagName('tbody')[0]; // tabell body
 const leggMerButton = document.getElementById('legg-mer-button');
 
-leggMerButton.addEventListener('click', () => {
-  let row = liste.insertRow();
-  let kompNavn = row.insertCell(0);
-  let ant = row.insertCell(1);
+//create a new variable that checks if it's "velg komponent" or empty string
 
-  kompNavn.innerHTML = document.getElementById('komponent').value;
-  ant.innerHTML = document.getElementById('antall').value;
+leggMerButton.addEventListener('click', () => {
+  const valgtKomponent = document.getElementById('komponent').value;
+  const erUgyldig =
+    valgtKomponent === 'Velg komponent' || valgtKomponent === '';
+
+  if (!erUgyldig) {
+    let row = liste.insertRow();
+    let kompNavn = row.insertCell(0);
+    let ant = row.insertCell(1);
+
+    kompNavn.innerHTML = valgtKomponent;
+    ant.innerHTML = document.getElementById('antall').value;
+
+    for (let i = 0; i < liste.rows.length - 1; i++) {
+      if (liste.rows[i].cells[0].innerHTML === kompNavn.innerHTML) {
+        liste.deleteRow(liste.rows[i].rowIndex - 1);
+      }
+    }
+
+    komponent.value = 'Velg komponent';
+    antall.value = '';
+  }
 });
 
+//--------------------Sender data til serveren--------------------
 document.getElementById('bestill-button').addEventListener('click', sendData);
 
 async function sendData() {
   const table = document.getElementById('liste');
-  const formData = [];
+  const komponenter = [];
 
   // Iterate over table rows (skipping the header row)
   for (let i = 1; i < table.rows.length; i++) {
@@ -49,56 +59,62 @@ async function sendData() {
       rowData[columnName] = cellValue;
     }
 
-    formData.push(rowData);
+    komponenter.push(rowData);
   }
-  console.log('form', JSON.stringify(formData));
+
+  let shoplist = [];
+
+  shoplist.push(dropSted.value);
+  shoplist.push(komponenter);
+  console.log('form', shoplist);
+
   try {
-    const res = await fetch('/dashboard', {
+    const res = await fetch('/dashboard/api/bestill', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(shoplist),
     });
     const data = await res.json();
-    console.log('SENT: ', data);
+    console.log('SENT: ', data, 'av: ', data.user.username);
   } catch (error) {
     console.error(error);
   }
-  // const res = await fetch('/koordinater', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify(formData),
-  // })
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     console.log('data:', data);
-  //     console.log('from:', formData);
-  //   })
-  //   .catch((err) => {
-  //     console.error(err);
-  //   });
 }
 
-// const form = document.querySelector('form');
-// form.addEventListener('submit', async (e) => {
-//   e.preventDefault(); // Hindrer siden i å refreshe når sumbit
-//   // const formData = new FormData(form);
+//--------------------Henter komponenter fra databasen--------------------
+async function getKomponenter() {
+  const listeOverKomponenter = document.getElementById('komponent');
+  let listeOverAntall = document.getElementById('antall');
 
-//   // const data = {
-//   //   komponenter: formData.get(komponenter),
-//   //   drop: formData.get('drop'),
-//   // };
+  const komponenter = await fetch('/komponent/api/komponenter', {
+    method: 'GET',
+  });
 
-//   // if (x !== '' && y !== '') {
-//   //   await fetch('http://localhost:4000/koordinater', {
-//   //     method: 'POST',
-//   //     body: JSON.stringify(data),
-//   //     headers: {
-//   //       'Content-type': 'application/json; charset=UTF-8',
-//   //     },
-//   //   });
-//   // } else console.log('MÅ inneholde begge koordinater!');
-// });
+  const data = await komponenter.json();
+
+  for (let i = 0; i < data.length; i++) {
+    const navn = data[i].navn;
+    const antall = data[i].antall;
+
+    if (antall) {
+      const valg = document.createElement('option');
+      valg.value = valg.innerHTML = navn;
+      listeOverKomponenter.appendChild(valg);
+
+      valg.setAttribute('data-max', data[i].antall);
+    }
+  }
+  listeOverKomponenter.addEventListener('change', (e) => {
+    const selectedOption = e.target.selectedOptions[0];
+    const maxVal = selectedOption.getAttribute('data-max');
+    listeOverAntall.value = maxVal;
+    listeOverAntall.setAttribute('max', maxVal);
+    listeOverAntall.setAttribute(
+      'onkeyup',
+      `if(this.value > ${maxVal}) this.value = ${maxVal}`,
+    );
+  });
+}
+getKomponenter();

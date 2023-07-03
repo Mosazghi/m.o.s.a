@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { ShoplistType } from '../type/shoplist.type';
 
 export type Shoplists = HydratedDocument<Shoplist>;
 
@@ -9,10 +10,10 @@ export class Shoplist {
   bruker: string;
 
   @Prop({ required: true })
-  komponent: string;
+  dropSted: number;
 
   @Prop({ required: true })
-  antall: number;
+  komponenter: ShoplistType[];
 }
 
 export const ShoplistSchema = SchemaFactory.createForClass(Shoplist);

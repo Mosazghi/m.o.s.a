@@ -4,18 +4,13 @@ import {
   Get,
   HttpStatus,
   Next,
-  Param,
   Post,
-  Redirect,
-  Req,
   Request,
   Res,
   Response,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
-import { ViewAuthFilter } from 'src/auth/redirect-to-login';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 
@@ -26,7 +21,7 @@ export class UserController {
   @Post('/register')
   async createUser(@Res() res, @Body() createUserDto: CreateUserDto) {
     const newUser = this.userService.createUser(createUserDto);
-    console.log('new user:', newUser);
+    console.log('New User:', newUser);
     if ((await newUser) !== null) {
       res.redirect('/');
     } else {
@@ -40,11 +35,17 @@ export class UserController {
     console.log('LOGGED IN', req.isAuthenticated());
     if (req) {
       res.redirect('/dashboard');
-    } else res.send('/');
+    } else res.send('/'); // <- TODO: faktiskt redirecte tilbake til login (hvis bruker ikke finnes)
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Get('/logut')
+  async logout(@Request() req, @Response() res, @Next() next) {
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      console.log('LOGGET UT', req.isAuthenticated());
+      res.redirect('/');
+    });
   }
 }

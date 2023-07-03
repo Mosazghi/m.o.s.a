@@ -16,6 +16,7 @@ export class AppController {
     private readonly appService: AppService,
     private readonly userService: UserService,
   ) {}
+
   @Get()
   @Render('index')
   root() {}
@@ -25,11 +26,12 @@ export class AppController {
   @UseFilters(ViewAuthFilter)
   @Render('dashboard')
   async dash(@Request() req) {
-    console.log('userId: ', req.session.passport.user);
+    console.log('userID: ', req.session.passport.user);
     const user = await this.userService.findById(req.session.passport.user);
     console.log('userinfo: ', user.username, user.password);
-    return { username: user.username, pass: user.password };
+    return { username: user.username, pass: user.password }; // se dashboard.hbs
   }
+
   @Get('/register')
   @Render('register')
   reg() {}

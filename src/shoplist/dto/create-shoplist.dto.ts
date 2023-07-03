@@ -1,5 +1,7 @@
+import { ShoplistType } from '../type/shoplist.type';
+
 export class CreateShoplistDto {
   bruker: string;
-  komponent: string;
-  antall: number;
+  dropSted: number;
+  komponenter: ShoplistType[];
 }

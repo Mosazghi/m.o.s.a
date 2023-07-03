@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
+// Redirecter til login hvis brukeren ikke er autentisert
 @Catch(ForbiddenException)
 export class ViewAuthFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {

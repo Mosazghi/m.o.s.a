@@ -7,11 +7,13 @@ export class SessionSerializer extends PassportSerializer {
   constructor(private userService: UserService) {
     super();
   }
+
   serializeUser(user: any, done: (err: Error, user: any) => void) {
     console.log('ser id: ', user._doc._id);
     console.log('logget som:', user._doc.username);
-    done(null, user._doc._id);
+    done(null, user._doc._id); // <- dette er det som blir lagret i session (id'en til brukeren)
   }
+
   deserializeUser(id: any, done: (err: Error, id: any) => void) {
     try {
       console.log('des id: ', id);
