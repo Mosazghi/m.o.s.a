@@ -1,14 +1,7 @@
-/*
-Code Name: Arduino Line Follower Robot Car
-Code URI: https://circuitbest.com/category/arduino-projects/
-Author: Make DIY
-Author URI: https://circuitbest.com/author/admin/
-Description: This program is used to make Arduino Line Follower Robot Car.
-Note: You can use any value between 0 to 255 for M1_Speed, M2_Speed, LeftRotationSpeed, RightRotationSpeed.
-Here 0 means Low Speed and 255 is for High Speed.
-Version: 1.0
-License: Remixing or Changing this Thing is allowed. Commercial use is not allowed.
-*/
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+
 
 #define in1 9
 #define in2 8
@@ -24,6 +17,9 @@ License: Remixing or Changing this Thing is allowed. Commercial use is not allow
  int RightRotationSpeed = 250; // Right Rotation Speed
 
 
+const char* SSID = "eduroam";      
+const char* PASSWORD = "20052009";  
+
  void setup() {
   Serial.begin(9600);
 
@@ -32,16 +28,22 @@ License: Remixing or Changing this Thing is allowed. Commercial use is not allow
   pinMode(in3,OUTPUT);
   pinMode(in4,OUTPUT);
 
-    pinMode(enA,OUTPUT);
-    pinMode(enB,OUTPUT);
+  pinMode(enA,OUTPUT);
+  pinMode(enB,OUTPUT);
 
-      pinMode(A1, INPUT);
-      pinMode(A2, INPUT); // initialize Left sensor as an input
-      pinMode(A3, INPUT); // initialize Right sensor as an input
-      pinMode(A4, INPUT);
-      pinMode(A5, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT); // initialize Left sensor as an input
+  pinMode(A3, INPUT); // initialize Right sensor as an input
+  pinMode(A4, INPUT);
+  pinMode(A5, INPUT);
 
-
+  // Connect to Wi-Fi
+  // WiFi.begin(SSID, PASSWORD);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi...");
+  // }
+  // Serial.println("Connected to WiFi");
 }
 
 void loop() {
@@ -52,6 +54,33 @@ void loop() {
   int BACK_SENSOR = digitalRead(A5);
 
   int count = 0;
+
+  HTTPClient http;
+  http.begin("http://10.161.2.15:4000/dashboard/api/bestilling");
+  int httpResponseCode = http.GET();
+  String payload = http.getString();
+
+  StaticJsonDocument<128> doc;
+  DeserializationError error = deserializeJson(doc, payload);
+
+  if (error) {
+    Serial.println("eserializeJson() failed: ");
+    Serial.println(error.c_str());
+    return;
+  }
+
+  int dropSted = doc["dropSted"]; // 121
+  char* bruker = doc["bruker"];
+  String komponenter = doc["komponenter"];
+
+  Serial.print("bruker: ");
+  Serial.print(bruker);
+  Serial.print("dropSted: ");
+  Serial.println(dropSted);
+  Serial.print("komponenter: ");
+  Serial.println(komponenter);
+
+  delay(5000);  
 
 if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
     forward(); //FORWARD
