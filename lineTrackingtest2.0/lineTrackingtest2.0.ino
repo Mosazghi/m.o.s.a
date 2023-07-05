@@ -23,6 +23,8 @@ License: Remixing or Changing this Thing is allowed. Commercial use is not allow
  int LeftRotationSpeed = 250;  // Left Rotation Speed
  int RightRotationSpeed = 250; // Right Rotation Speed
 
+ unsigned lineCount = 0;
+
 
  void setup() {
   Serial.begin(9600);
@@ -45,55 +47,66 @@ License: Remixing or Changing this Thing is allowed. Commercial use is not allow
 }
 
 void loop() {
-  int FRONT_SENSOR = digitalRead(A1);
+  int FRONT_SENSOR = digitalRead(A0);
+  int MID_SENSOR = digitalRead(A1); // Ikke i bruk 
   int LEFT_SENSOR = digitalRead(A2);
   int RIGHT_SENSOR = digitalRead(A3);
-  int MID_SENSOR = digitalRead(A4);
-  int BACK_SENSOR = digitalRead(A5);
+  int BACK_SENSOR = digitalRead(A4);
 
-  int count = 0;
-
-if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
+if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
     forward(); //FORWARD
     Serial.println("Fremover");
 }
 
-  else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1) {
+  else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
     right(); //Move Right
     Serial.println("Høyre");
  }
 
-  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0) {
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
     left(); //Move Left
     Serial.println("Venstre");
 }
 
-  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1) {
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==0) {
     Stop();  //STOP
     Serial.println("Stopper");
- }
+ } 
 
- else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && MID_SENSOR==1 && FRONT_SENSOR==1 && BACK_SENSOR==1){   //Kryss
-  intersection(); 
-  Serial.println("Ved kryss");
- }
-
- else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && MID_SENSOR==0 && FRONT_SENSOR==1 && BACK_SENSOR==1)
-  dropSpot();
-  Serial.println("Ved drop spot");
-
+ else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
+  int stajsonNr = 2; //Hardkodet 
+  intersectionDetected();
+  Serial.println("Ved krysset: ");
+  Serial.print(lineCount);
+  Serial.println(" ");
+  if(lineCount == stajsonNr){
+    Serial.println("Tar svingen til stasjon 2");
+  }
+  else
+    forward();
+ } 
 }
-
+//Ikke ferdig
 void dropSpot(){
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
-
+  Stop();
+  delay(2000);
+  turn();
+  forward();
 }
 
-void intersection(){
 
+void intersectionDetected(){
+  static long lastDetected = 0;
+  if(millis() - lastDetected < 2000){ 
+    return;
+  }
+  lastDetected = millis(); //Sist sjekket linje */
+  lineCount++;
+} 
+
+void turn(){
+  left();
+  delay(2000);
 }
 
 void forward()
