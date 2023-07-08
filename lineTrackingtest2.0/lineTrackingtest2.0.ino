@@ -15,7 +15,7 @@
  int M2_Speed = 80; // speed of motor 2
  int LeftRotationSpeed = 250;  // Left Rotation Speed
  int RightRotationSpeed = 250; // Right Rotation Speed
-
+  
  unsigned lineCount = 0;
 
 
@@ -67,7 +67,7 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
   DeserializationError error = deserializeJson(doc, payload);
 
   if (error) {
-    Serial.println("eserializeJson() failed: ");
+    Serial.println("deserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
@@ -83,7 +83,7 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
   Serial.print("komponenter: ");
   Serial.println(komponenter);
 
-  delay(5000);  
+  
 
 if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
     forward(); //FORWARD
@@ -116,8 +116,50 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
   }
   else
     forward();
- } 
+  } 
+  }
 }
+
+//--------manuvere-funksjoner---------
+
+// Ved oppstart (hente komponenter)--------------------------------
+void baseTilS1{
+  
+}
+void baseTilS2{
+  
+}
+
+// Ved levering (lever komponenter)--------------------------------
+void S1tilD1 {
+
+}
+
+void S1tilD2 {
+
+}
+
+void S2tilD1 {
+
+}
+
+void S2tilD2 {
+
+}
+
+// Tilbake til basen--------------------------------
+
+void D1tilBase {
+
+}
+
+void D2tilBase {
+
+}
+
+
+// Andre funksjoner --------------------------------
+
 //Ikke ferdig
 void dropSpot(){
   Stop();
