@@ -16,7 +16,7 @@
  int LeftRotationSpeed = 250;  // Left Rotation Speed
  int RightRotationSpeed = 250; // Right Rotation Speed
   
- unsigned lineCount = 0;
+ unsigned  lineCount = 0;
 
 
 const char* SSID = "eduroam";      
@@ -124,7 +124,12 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
 
 // Ved oppstart (hente komponenter)--------------------------------
 void baseTilS1{
-  
+ if(!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) &&  digitalRead(FRONT_SENSOR) &&  digitalRead(BACK_SENSOR)) {
+  forward();
+  Serial.println("Fremover");
+  delay(2000);
+  turnLeft();
+ }
 }
 void baseTilS2{
   
@@ -164,7 +169,7 @@ void D2tilBase {
 void dropSpot(){
   Stop();
   delay(2000);
-  turn();
+  turnLeft();
   forward();
 }
 
@@ -178,7 +183,7 @@ void intersectionDetected(){
   lineCount++;
 } 
 
-void turn(){
+void turnLeft(){
   left();
   delay(2000);
 }
