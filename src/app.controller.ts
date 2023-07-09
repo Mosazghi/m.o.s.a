@@ -35,4 +35,8 @@ export class AppController {
   @Get('/register')
   @Render('register')
   reg() {}
+
+  @Get('/Komp')
+  @Render('komponent')
+  komp(){}
 }

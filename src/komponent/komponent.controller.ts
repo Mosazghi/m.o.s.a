@@ -18,6 +18,7 @@ export class KomponentController {
 
   @Post('api/ny')
   create(@Body() createKomponentDto: CreateKomponentDto) {
+    console.log(createKomponentDto);
     return this.komponentService.create(createKomponentDto);
   }
 
