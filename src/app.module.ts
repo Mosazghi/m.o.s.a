@@ -10,7 +10,8 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://fest121:fest121@robot.bricdil.mongodb.net/',
+      'mongodb+srv://Abdi:Abdi10002@cluster0.2ysdgp5.mongodb.net/'
+      ,
     ),
     UserModule,
     AuthModule,

@@ -31,8 +31,8 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  await app.listen(PORT, '10.161.2.15', () => {
-    console.log(`Lytter på http://10.161.2.15:${PORT}`);
+  await app.listen(PORT, '192.168.2.181', () => {
+    console.log(`Lytter på http://192.168.2.181:${PORT}`);
   });
 }
 bootstrap();
