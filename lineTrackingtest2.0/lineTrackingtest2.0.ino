@@ -120,50 +120,8 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
   }
 }
 
-//--------manuvere-funksjoner---------
-
-// Ved oppstart (hente komponenter)--------------------------------
-void baseTilS1{
- if(!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) &&  digitalRead(FRONT_SENSOR) &&  digitalRead(BACK_SENSOR)) {
-  forward();
-  Serial.println("Fremover");
-  delay(2000);
-  turnLeft();
- }
-}
-void baseTilS2{
-  
-}
-
-// Ved levering (lever komponenter)--------------------------------
-void S1tilD1 {
-
-}
-
-void S1tilD2 {
-
-}
-
-void S2tilD1 {
-
-}
-
-void S2tilD2 {
-
-}
-
-// Tilbake til basen--------------------------------
-
-void D1tilBase {
-
-}
-
-void D2tilBase {
-
-}
 
 
-// Andre funksjoner --------------------------------
 
 //Ikke ferdig
 void dropSpot(){
