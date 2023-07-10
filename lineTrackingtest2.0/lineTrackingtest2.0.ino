@@ -175,7 +175,7 @@ void loop() {
 void dropSpot() {
   Stop();
   turnAround();
-  delay(2000); //Få på last 
+  delay(2000); //Få på last
   forward();
 }
 
@@ -203,7 +203,7 @@ void dropSpot() {
 //     Stop(); //STOP
 //     Serial.println("Stopper");
 //   } else if (RIGHT_SENSOR == 1 && LEFT_SENSOR == 1 && BACK_SENSOR == 1 && FRONT_SENSOR == 1) { //Kryss
-//     int stajsonNr = 2; //Hardkodet 
+//     int stajsonNr = 2; //Hardkodet
 //     intersectionDetected();
 //     Serial.println("Ved krysset: ");
 //     Serial.print(lineCount);
@@ -218,34 +218,42 @@ void dropSpot() {
 //--------manuvere-funksjoner---------
 
 // Ved oppstart (hente komponenter)--------------------------------
-void baseTilS1() {
-  if (!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+void baseTilStasjon() {
+  if (!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
     forward();
     Serial.println("Fremover");
-    delay(2000);
-    turnLeft();
+    if(digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      turnLeft();
+      Serial.println("Svinger venstre");
+      delay(2000);
+      forward();
+      Serial.println("Fremover");
+      if(digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+        turnLeft();
+        Serial.println("Svinger venstre");
+        delay(2000);
+        forward();
+        Serial.println("Fremover");
+        if(digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+          Stop();
+          Serial.println("Stoppet, framme ved statsjonen")
+        }
+      }
+    }
   }
 }
-void baseTilS2() {
 
-}
 
 // Ved levering (lever komponenter)--------------------------------
-void S1tilD1() {
+void stasjonTilD1() {
 
 }
 
-void S1tilD2() {
+void stasjonTilD2() {
 
 }
 
-void S2tilD1() {
 
-}
-
-void S2tilD2() {
-
-}
 
 // Tilbake til basen--------------------------------
 
