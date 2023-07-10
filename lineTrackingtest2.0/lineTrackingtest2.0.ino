@@ -10,6 +10,11 @@
 #define enA 10
 #define enB 5
 
+#define A1 5
+#define A2 5
+
+
+
 
  int M1_Speed = 80; // speed of motor 1
  int M2_Speed = 80; // speed of motor 2
@@ -19,11 +24,11 @@
  unsigned lineCount = 0;
 
 
-const char* SSID = "eduroam";      
+const char* SSID = "Weini2.4G";      
 const char* PASSWORD = "20052009";  
 
  void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   pinMode(in1,OUTPUT);
   pinMode(in2,OUTPUT);
@@ -39,13 +44,12 @@ const char* PASSWORD = "20052009";
   pinMode(A4, INPUT);
   pinMode(A5, INPUT);
 
-  // Connect to Wi-Fi
-  // WiFi.begin(SSID, PASSWORD);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.println("Connecting to WiFi...");
-  // }
-  // Serial.println("Connected to WiFi");
+  WiFi.begin(SSID, PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
 }
 
 void loop() {
@@ -55,69 +59,70 @@ void loop() {
   int RIGHT_SENSOR = digitalRead(A3);
   int BACK_SENSOR = digitalRead(A4);
 
-if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
-  int count = 0;
-
   HTTPClient http;
-  http.begin("http://10.161.2.15:4000/dashboard/api/bestilling");
+  http.begin("http://10.0.0.13:4000/dashboard/api/bestilling");
   int httpResponseCode = http.GET();
-  String payload = http.getString();
+  String input = http.getString();
 
-  StaticJsonDocument<128> doc;
-  DeserializationError error = deserializeJson(doc, payload);
+  StaticJsonDocument<384> doc;
+
+  DeserializationError error = deserializeJson(doc, input);
 
   if (error) {
-    Serial.println("eserializeJson() failed: ");
+    Serial.print("deserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
+  Serial.println(httpResponseCode);
+  const char* id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
+  const char* bruker = doc["bruker"]; // "mos"
+  int dropSted = doc["dropSted"]; // 4
 
-  int dropSted = doc["dropSted"]; // 121
-  char* bruker = doc["bruker"];
-  String komponenter = doc["komponenter"];
+  for (JsonObject komponenter_item : doc["komponenter"].as<JsonArray>()) {
 
-  Serial.print("bruker: ");
-  Serial.print(bruker);
-  Serial.print("dropSted: ");
-  Serial.println(dropSted);
-  Serial.print("komponenter: ");
-  Serial.println(komponenter);
+    const char* komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
+    const char* komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
 
-  delay(5000);  
-
-if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
-    forward(); //FORWARD
-    Serial.println("Fremover");
-}
-
-  else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
-    right(); //Move Right
-    Serial.println("HÃ¸yre");
- }
-
-  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
-    left(); //Move Left
-    Serial.println("Venstre");
-}
-
-  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==0) {
-    Stop();  //STOP
-    Serial.println("Stopper");
- } 
-
- else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
-  int stajsonNr = 2; //Hardkodet 
-  intersectionDetected();
-  Serial.println("Ved krysset: ");
-  Serial.print(lineCount);
-  Serial.println(" ");
-  if(lineCount == stajsonNr){
-    Serial.println("Tar svingen til stasjon 2");
   }
-  else
-    forward();
- } 
+
+  if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+  
+  }
+  if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
+      forward(); //FORWARD
+      Serial.println("Fremover");
+  }
+
+    else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+      right(); //Move Right
+      Serial.println("Høyre");
+  }
+
+    else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+      left(); //Move Left
+      Serial.println("Venstre");
+  }
+
+    else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==0) {
+      Stop();  //STOP
+      Serial.println("Stopper");
+  } 
+
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
+    int stajsonNr = 2; //Hardkodet 
+    intersectionDetected();
+    Serial.println("Ved krysset: ");
+    Serial.print(lineCount);
+    Serial.println(" ");
+    if(lineCount == stajsonNr){
+      Serial.println("Tar svingen til stasjon 2");
+    }
+    else {
+      forward();
+    }
+  } 
 }
+
 //Ikke ferdig
 void dropSpot(){
   Stop();
