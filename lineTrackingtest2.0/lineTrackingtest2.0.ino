@@ -1,5 +1,6 @@
-#include <WiFi.h>
-#include <HTTPClient.h>
+// #include <WiFi.h>
+
+// #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
 
@@ -28,6 +29,8 @@ char pass[] = "41359754";
  int M2_Speed = 80; // speed of motor 2
  int LeftRotationSpeed = 250;  // Left Rotation Speed
  int RightRotationSpeed = 250; // Right Rotation Speed
+  
+ unsigned  lineCount = 0;
 
  unsigned lineCount = 0;
  int stajsonNr = 0;
@@ -49,7 +52,7 @@ char pass[] = "41359754";
   pinMode(rightPin, INPUT);
   pinMode(backPin, INPUT);
 
-  Connect to Wi-Fi
+  // Connect to Wi-Fi
   WiFi.begin(SSID, PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -77,6 +80,7 @@ void loop() {
   int RIGHT_SENSOR = digitalRead(rightPin);
   int BACK_SENSOR = digitalRead(backPin);
 
+
   HTTPClient http;
   http.begin("http://10.161.2.15:4000/dashboard/api/bestilling");
   int httpResponseCode = http.GET();
@@ -86,7 +90,7 @@ void loop() {
   DeserializationError error = deserializeJson(doc, payload);
 
   if (error) {
-    Serial.println("eserializeJson() failed: ");
+    Serial.println("deserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
@@ -102,7 +106,8 @@ void loop() {
   Serial.print("komponenter: ");
   Serial.println(komponenter);
 
-  delay(5000); 
+
+  
 
 
 if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && MID_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
@@ -110,7 +115,13 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && MID_SENSOR==1 && BACK_SENSOR==1 && FRONT
     Serial.println("Fremover");
 }
 
-else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && MID_SENSOR==0  && BACK_SENSOR==0 && FRONT_SENSOR==0) {
+
+  else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+    right(); //Move Right
+    Serial.println("HÃ¸yre");
+ }
+
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
     left(); //Move Left
     Serial.println("Venstre");
  }
@@ -250,5 +261,143 @@ void goToDropSpot(){
 
 }
 
-// Ikke ferdig 
-void turnAround(){}
+
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==0) {
+    Stop();  //STOP
+    Serial.println("Stopper");
+ } 
+
+ else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
+  int stajsonNr = 2; //Hardkodet 
+  intersectionDetected();
+  Serial.println("Ved krysset: ");
+  Serial.print(lineCount);
+  Serial.println(" ");
+  if(lineCount == stajsonNr){
+    Serial.println("Tar svingen til stasjon 2");
+  }
+  else
+    forward();
+  } 
+  }
+}
+
+//--------manuvere-funksjoner---------
+
+// Ved oppstart (hente komponenter)--------------------------------
+void baseTilS1{
+ if(!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) &&  digitalRead(FRONT_SENSOR) &&  digitalRead(BACK_SENSOR)) {
+  forward();
+  Serial.println("Fremover");
+  delay(2000);
+  turnLeft();
+ }
+}
+void baseTilS2{
+  
+}
+
+// Ved levering (lever komponenter)--------------------------------
+void S1tilD1 {
+
+}
+
+void S1tilD2 {
+
+}
+
+void S2tilD1 {
+
+}
+
+void S2tilD2 {
+
+}
+
+// Tilbake til basen--------------------------------
+
+void D1tilBase {
+
+}
+
+void D2tilBase {
+
+}
+
+
+// Andre funksjoner --------------------------------
+
+//Ikke ferdig
+void dropSpot(){
+  Stop();
+  delay(2000);
+  turnLeft();
+  forward();
+}
+
+
+void intersectionDetected(){
+  static long lastDetected = 0;
+  if(millis() - lastDetected < 2000){ 
+    return;
+  }
+  lastDetected = millis(); //Sist sjekket linje */
+  lineCount++;
+} 
+
+void turnLeft(){
+  left();
+  delay(2000);
+}
+
+void forward()
+{
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+
+  analogWrite(enA, M1_Speed);
+  analogWrite(enB, M2_Speed);
+}
+
+void backward()
+{
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+
+  analogWrite(enA, M1_Speed);
+  analogWrite(enB, M2_Speed);
+}
+
+void right()
+{
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+
+  analogWrite(enA, LeftRotationSpeed);
+  analogWrite(enB, RightRotationSpeed);
+}
+
+void left()
+{
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+
+  analogWrite(enA, LeftRotationSpeed);
+  analogWrite(enB, RightRotationSpeed);
+}
+
+void Stop()
+{
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
