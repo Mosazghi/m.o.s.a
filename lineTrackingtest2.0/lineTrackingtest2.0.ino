@@ -20,8 +20,8 @@
  int M2_Speed = 80; // speed of motor 2
  int LeftRotationSpeed = 250;  // Left Rotation Speed
  int RightRotationSpeed = 250; // Right Rotation Speed
-
- unsigned lineCount = 0;
+  
+ unsigned  lineCount = 0;
 
 
 const char* SSID = "Weini2.4G";      
@@ -69,7 +69,7 @@ void loop() {
   DeserializationError error = deserializeJson(doc, input);
 
   if (error) {
-    Serial.print("deserializeJson() failed: ");
+    Serial.println("eserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
@@ -85,13 +85,12 @@ void loop() {
 
   }
 
-  if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
-  
-  }
-  if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
-      forward(); //FORWARD
-      Serial.println("Fremover");
-  }
+  delay(5000);  
+
+if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
+    forward(); //FORWARD
+    Serial.println("Fremover");
+}
 
     else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
       right(); //Move Right
@@ -108,26 +107,24 @@ void loop() {
       Serial.println("Stopper");
   } 
 
-  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
-    int stajsonNr = 2; //Hardkodet 
-    intersectionDetected();
-    Serial.println("Ved krysset: ");
-    Serial.print(lineCount);
-    Serial.println(" ");
-    if(lineCount == stajsonNr){
-      Serial.println("Tar svingen til stasjon 2");
-    }
-    else {
-      forward();
-    }
-  } 
+ else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
+  int stajsonNr = 2; //Hardkodet 
+  intersectionDetected();
+  Serial.println("Ved krysset: ");
+  Serial.print(lineCount);
+  Serial.println(" ");
+  if(lineCount == stajsonNr){
+    Serial.println("Tar svingen til stasjon 2");
+  }
+  else
+    forward();
+ } 
 }
-
 //Ikke ferdig
 void dropSpot(){
   Stop();
   delay(2000);
-  turn();
+  turnLeft();
   forward();
 }
 
@@ -141,7 +138,7 @@ void intersectionDetected(){
   lineCount++;
 } 
 
-void turn(){
+void turnLeft(){
   left();
   delay(2000);
 }
