@@ -1,10 +1,10 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { join } from 'path';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 const PORT = 4000;
 
 async function bootstrap() {
@@ -31,8 +31,8 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  await app.listen(PORT, 'localhost', () => {
-    console.log(`Lytter på http://localhost:${PORT}`);
+  await app.listen(PORT, '10.161.2.15', () => {
+    console.log(`Lytter på http://10.161.2.15:${PORT}`);
   });
 }
 bootstrap();
