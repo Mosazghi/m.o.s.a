@@ -10,11 +10,6 @@
 #define enA 10
 #define enB 5
 
-#define A1 5
-#define A2 5
-
-
-
 
  int M1_Speed = 80; // speed of motor 1
  int M2_Speed = 80; // speed of motor 2
@@ -24,11 +19,11 @@
  unsigned  lineCount = 0;
 
 
-const char* SSID = "Weini2.4G";      
+const char* SSID = "eduroam";      
 const char* PASSWORD = "20052009";  
 
  void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   pinMode(in1,OUTPUT);
   pinMode(in2,OUTPUT);
@@ -44,12 +39,13 @@ const char* PASSWORD = "20052009";
   pinMode(A4, INPUT);
   pinMode(A5, INPUT);
 
-  WiFi.begin(SSID, PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
-  }
-  Serial.println("Connected to WiFi");
+  // Connect to Wi-Fi
+  // WiFi.begin(SSID, PASSWORD);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi...");
+  // }
+  // Serial.println("Connected to WiFi");
 }
 
 void loop() {
@@ -59,53 +55,55 @@ void loop() {
   int RIGHT_SENSOR = digitalRead(A3);
   int BACK_SENSOR = digitalRead(A4);
 
+if(RIGHT_SENSOR==0 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+  int count = 0;
+
   HTTPClient http;
-  http.begin("http://10.0.0.13:4000/dashboard/api/bestilling");
+  http.begin("http://10.161.2.15:4000/dashboard/api/bestilling");
   int httpResponseCode = http.GET();
-  String input = http.getString();
+  String payload = http.getString();
 
-  StaticJsonDocument<384> doc;
-
-  DeserializationError error = deserializeJson(doc, input);
+  StaticJsonDocument<128> doc;
+  DeserializationError error = deserializeJson(doc, payload);
 
   if (error) {
-    Serial.println("eserializeJson() failed: ");
+    Serial.println("deserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
-  Serial.println(httpResponseCode);
-  const char* id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
-  const char* bruker = doc["bruker"]; // "mos"
-  int dropSted = doc["dropSted"]; // 4
 
-  for (JsonObject komponenter_item : doc["komponenter"].as<JsonArray>()) {
+  int dropSted = doc["dropSted"]; // 121
+  char* bruker = doc["bruker"];
+  String komponenter = doc["komponenter"];
 
-    const char* komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
-    const char* komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
+  Serial.print("bruker: ");
+  Serial.print(bruker);
+  Serial.print("dropSted: ");
+  Serial.println(dropSted);
+  Serial.print("komponenter: ");
+  Serial.println(komponenter);
 
-  }
-
-  delay(5000);  
+  
 
 if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
     forward(); //FORWARD
     Serial.println("Fremover");
 }
 
-    else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
-      right(); //Move Right
-      Serial.println("Høyre");
-  }
+  else if(RIGHT_SENSOR==0 && LEFT_SENSOR==1  && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+    right(); //Move Right
+    Serial.println("HÃ¸yre");
+ }
 
-    else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
-      left(); //Move Left
-      Serial.println("Venstre");
-  }
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==0 && BACK_SENSOR==1 && FRONT_SENSOR==1) {
+    left(); //Move Left
+    Serial.println("Venstre");
+}
 
-    else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==0) {
-      Stop();  //STOP
-      Serial.println("Stopper");
-  } 
+  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==0) {
+    Stop();  //STOP
+    Serial.println("Stopper");
+ } 
 
  else if(RIGHT_SENSOR==1 && LEFT_SENSOR==1 && BACK_SENSOR==1 && FRONT_SENSOR==1){   //Kryss
   int stajsonNr = 2; //Hardkodet 
@@ -118,11 +116,54 @@ if(RIGHT_SENSOR==0 && LEFT_SENSOR==0) {
   }
   else
     forward();
- } 
+  } 
+  }
+}
+
+//--------manuvere-funksjoner---------
+
+// Ved oppstart (hente komponenter)--------------------------------
+void baseTilS1{
+ if(!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) &&  digitalRead(FRONT_SENSOR) &&  digitalRead(BACK_SENSOR)) {
+  forward();
+  Serial.println("Fremover");
+  delay(2000);
+  turnLeft();
+ }
+}
+void baseTilS2{
+  
+}
+
+// Ved levering (lever komponenter)--------------------------------
+void S1tilD1 {
+
+}
+
+void S1tilD2 {
+
+}
+
+void S2tilD1 {
+
+}
+
+void S2tilD2 {
+
+}
+
+// Tilbake til basen--------------------------------
+
+void D1tilBase {
+
+}
+
+void D2tilBase {
+
 }
 
 
-
+// Andre funksjoner --------------------------------
 
 //Ikke ferdig
 void dropSpot(){
