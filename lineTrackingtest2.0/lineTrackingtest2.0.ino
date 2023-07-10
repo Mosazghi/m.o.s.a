@@ -21,8 +21,8 @@
 #define backPin 33
 
 char auth[] = " ";
-const char* ssid = "Abdi";
-const char* password = "zxqp2111";
+const char* ssid = "Didier’s iPhone";
+const char* password = "didzi123";
 
 int M1_Speed = 50; // speed of motor 1
 int M2_Speed = 50; // speed of motor 2
@@ -49,13 +49,13 @@ void setup() {
   pinMode(rightPin, INPUT);
   pinMode(backPin, INPUT);
 
-  // // Connect to Wi-Fi
-  // WiFi.begin(ssid, password);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.println("Connecting to WiFi...");
-  // }
-  // Serial.println("Connected to WiFi");
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
 
   // Input fra bruker (serial monitor)
   // Serial.println(" ");
@@ -85,46 +85,46 @@ int BACK_SENSOR = digitalRead(backPin);
 
 void loop() {
 
-  // HTTPClient http;
+  HTTPClient http;
 
-  // while (true) {
-  //   http.begin("http://192.168.218.179:4000/dashboard/api/bestilling");
-  //   int httpResponseCode = http.GET();
-  //   String payload = http.getString();
+  while (true) {
+    http.begin("http://172.20.10.2:4000/dashboard/api/bestilling");
+    int httpResponseCode = http.GET();
+    String payload = http.getString();
 
-  //   StaticJsonDocument<384> doc;
-  //   Serial.print("payload:");
-  //   Serial.println(payload);
-  //   DeserializationError error = deserializeJson(doc, payload);
+    StaticJsonDocument<384> doc;
+    Serial.print("payload:");
+    Serial.println(payload);
+    DeserializationError error = deserializeJson(doc, payload);
 
-  //   if (error) {
-  //     Serial.print("deserializeJson() failed: ");
-  //     Serial.println(error.c_str());
-  //     http.end();
-  //     continue;
-  //   }
+    if (error) {
+      Serial.print("deserializeJson() failed: ");
+      Serial.println(error.c_str());
+      http.end();
+      continue;
+    }
 
-  //   const char* id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
-  //   const char* bruker = doc["bruker"]; // "mos"
-  //   int dropSted = doc["dropSted"]; // 4
+    const char* id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
+    const char* bruker = doc["bruker"]; // "mos"
+    int dropSted = doc["dropSted"]; // 4
 
-  //   for (JsonObject komponenter_item : doc["komponenter"].as<JsonArray>()) {
-  //     const char* komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
-  //     const char* komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
-  //   }
+    for (JsonObject komponenter_item : doc["komponenter"].as<JsonArray>()) {
+      const char* komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
+      const char* komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
+    }
 
-  //   int v = doc["__v"]; // 0
+    int v = doc["__v"]; // 0
 
-  //   if (httpResponseCode == 200 && payload.length() > 0) {
-  //     // Process the JSON data
-  //   } else {
-  //     // No new JSON data available
-  //   }
+    if (httpResponseCode == 200 && payload.length() > 0) {
+      // Process the JSON data
+    } else {
+      // No new JSON data available
+    }
 
-  //   http.end();
+    http.end();
 
-  //   delay(60000);
-  // }
+    delay(60000);
+  }
 
   // if (RIGHT_SENSOR == 0 && LEFT_SENSOR == 0 && MID_SENSOR == 1 && BACK_SENSOR == 1 && FRONT_SENSOR == 1) {
   //   forward(); //FORWARD
