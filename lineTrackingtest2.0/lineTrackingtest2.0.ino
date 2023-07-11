@@ -7,16 +7,16 @@
 
 #include <Wire.h>
 
-#define in1 4
-#define in2 13
-#define in3 23
+#define in1 22
+#define in2 21
+#define in3 19
 #define in4 18
-#define enA 2
-#define enB 19
+#define enA 23
+#define enB 4
 
 #define frontPin 25
 #define midPin 26
-#define leftPin 27
+#define leftPin 14
 #define rightPin 32
 #define backPin 33
 
@@ -24,13 +24,21 @@ char auth[] = " ";
 const char* ssid = "Abdi";
 const char* password = "zxqp2111";
 
-int M1_Speed = 50; // speed of motor 1
-int M2_Speed = 50; // speed of motor 2
-int LeftRotationSpeed = 250; // Left Rotation Speed
-int RightRotationSpeed = 250; // Right Rotation Speed
+int M1_Speed = 80; // speed of motor 1
+int M2_Speed = 80; // speed of motor 2
+int LeftRotationSpeed = 80;  // Left Rotation Speed
+int RightRotationSpeed = 80; // Right Rotation Speed
+
+
+int FRONT_SENSOR 0;
+int MID_SENSOR = 0;
+int LEFT_SENSOR = 0;
+int RIGHT_SENSOR = 0;
+int BACK_SENSOR = 0;
+
+
 
 unsigned lineCount = 0;
-
 int stajsonNr = 0;
 
 void setup() {
@@ -65,25 +73,24 @@ void setup() {
   // stajsonNr = Serial.parseInt();
   // delay(2000);
 
-  // stajsonNr;
-  // forward();
-  // delay(5000);
-  // backward();
-  // delay(5000);
-  // left();
-  // delay(5000);
-  // right();
-  // delay(5000);
-  // Stop();
+  stajsonNr = 2;
+  forward();
+  delay(10000);
+  backward();
+  delay(10000);
+  left();
+  delay(10000);
+  right();
+  delay(10000);
 }
 
-int FRONT_SENSOR = digitalRead(frontPin);
-int MID_SENSOR = digitalRead(midPin);
-int LEFT_SENSOR = digitalRead(leftPin);
-int RIGHT_SENSOR = digitalRead(rightPin);
-int BACK_SENSOR = digitalRead(backPin);
 
 void loop() {
+  FRONT_SENSOR = digitalRead(frontPin);
+  MID_SENSOR = digitalRead(midPin);
+  LEFT_SENSOR = digitalRead(leftPin);
+  RIGHT_SENSOR = digitalRead(rightPin);
+  BACK_SENSOR = digitalRead(backPin);
 
   // HTTPClient http;
 
@@ -274,59 +281,59 @@ void turnLeft() {
   delay(2000);
 }
 
-void forward() {
+void forward()
+{
+            digitalWrite(in1, HIGH);
+            digitalWrite(in2, LOW);
+            digitalWrite(in3, HIGH);
+            digitalWrite(in4, LOW);
 
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-
-  analogWrite(enA, M1_Speed);
-  analogWrite(enB, M2_Speed);
-  Serial.println("kjører frem!");
+                // analogWrite(enA, pwmOutput);
+                // analogWrite(enB, pwmOutput);
+  Serial.println("frem");
 }
 
-void backward() {
+void backward()
+{
+
+            digitalWrite(in1, LOW);
+            digitalWrite(in2, HIGH);
+            digitalWrite(in3, LOW);
+            digitalWrite(in4, HIGH);
+
+                // analogWrite(enA, pwmOutput);
+                // analogWrite(enB, pwmOutput);
+    Serial.println("bak");
+}
+
+void right()
+{
+           digitalWrite(in1, HIGH);
+            digitalWrite(in2, LOW);
+            digitalWrite(in3, LOW);
+            digitalWrite(in4, HIGH);
+
+                // analogWrite(enA, pwmOutput);
+                // analogWrite(enB, pwmOutput);
+  Serial.println("høyre");
+}
+
+void left()
+{
+            digitalWrite(in1, LOW);
+            digitalWrite(in2, HIGH);
+            digitalWrite(in3, HIGH);
+            digitalWrite(in4, LOW);
+
+                // analogWrite(enA, pwmOutput);
+                // analogWrite(enB, pwmOutput);
+  Serial.println("venstre");
+}
+
+void Stop()
+{
   digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-
-  analogWrite(enA, M1_Speed);
-  analogWrite(enB, M2_Speed);
-  Serial.println("kjører bak!");
-
-}
-
-void right() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-
-  analogWrite(enA, LeftRotationSpeed);
-  analogWrite(enB, RightRotationSpeed);
-  Serial.println("kjører høyre!");
-
-}
-
-void left() {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-
-  analogWrite(enA, LeftRotationSpeed);
-  analogWrite(enB, RightRotationSpeed);
-  Serial.println("kjører venstre!");
-
-}
-
-void Stop() {
-  digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-  Serial.println("stopper!");
-
 }
