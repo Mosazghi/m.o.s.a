@@ -166,7 +166,7 @@ void loop() {
   //     left(); // Tar svingen til venstre
   //     delay(2000);
   //     forward();
-  //   } else if (RIGHT_SENSOR == 1 && LEFT_SENSOR == 1 && MID_SENSOR == 0 && BACK_SENSOR == 1 && FRONT_SENSOR == 1) {
+  //   } else if (RIGHT_SENSOR == 1 && LEFT   _SENSOR == 1 && MID_SENSOR == 0 && BACK_SENSOR == 1 && FRONT_SENSOR == 1) {
   //     Serial.println("Ved drop steddet");
   //     dropSpot();
   //   } else {
@@ -291,50 +291,48 @@ void turnLeft() {
 
 void forward()
 {
+            analogWrite(enA, M1_Speed);
+            analogWrite(enB, M1_Speed);
             digitalWrite(in1, HIGH);
             digitalWrite(in2, LOW);
             digitalWrite(in3, HIGH);
             digitalWrite(in4, LOW);
-
-                // analogWrite(enA, pwmOutput);
-                // analogWrite(enB, pwmOutput);
   Serial.println("frem");
 }
 
 void backward()
 {
 
+           analogWrite(enA, M1_Speed);
+            analogWrite(enB, M1_Speed);
+
             digitalWrite(in1, LOW);
             digitalWrite(in2, HIGH);
             digitalWrite(in3, LOW);
             digitalWrite(in4, HIGH);
-
-                // analogWrite(enA, pwmOutput);
-                // analogWrite(enB, pwmOutput);
     Serial.println("bak");
 }
 
 void right()
 {
-           digitalWrite(in1, HIGH);
-            digitalWrite(in2, LOW);
-            digitalWrite(in3, LOW);
-            digitalWrite(in4, HIGH);
-
-                // analogWrite(enA, pwmOutput);
-                // analogWrite(enB, pwmOutput);
+              analogWrite(enA, 55);
+              analogWrite(enB, 65);
+            digitalWrite(in1, LOW);
+            digitalWrite(in2, HIGH);
+            digitalWrite(in3, HIGH);
+            digitalWrite(in4, LOW);
   Serial.println("høyre");
 }
 
 void left()
 {
-            digitalWrite(in1, LOW);
-            digitalWrite(in2, HIGH);
-            digitalWrite(in3, HIGH);
-            digitalWrite(in4, LOW);
 
-                // analogWrite(enA, pwmOutput);
-                // analogWrite(enB, pwmOutput);
+          analogWrite(enA, 65);
+          analogWrite(enB, 55);
+           digitalWrite(in1, HIGH);
+            digitalWrite(in2, LOW);
+            digitalWrite(in3, LOW);
+            digitalWrite(in4, HIGH);
   Serial.println("venstre");
 }
 
