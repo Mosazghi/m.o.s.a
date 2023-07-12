@@ -226,7 +226,7 @@ void dropSpot() {
 
 // Ved oppstart (hente komponenter)--------------------------------
 void baseTilStasjon() {
-  if (!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+  if (!digitalRead(LEFT_SENSOR) && !digitalR nead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
     forward();
     Serial.println("Fremover");
     if(digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
