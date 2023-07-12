@@ -21,22 +21,19 @@
 #define backPin 33
 
 char auth[] = " ";
-const char* ssid = "Didier’s iPhone";
-const char* password = "didzi123";
+const char * ssid = "Didier’s iPhone";
+const char * password = "didzi123";
 
 int M1_Speed = 80; // speed of motor 1
 int M2_Speed = 80; // speed of motor 2
-int LeftRotationSpeed = 80;  // Left Rotation Speed
+int LeftRotationSpeed = 80; // Left Rotation Speed
 int RightRotationSpeed = 80; // Right Rotation Speed
 
-
-int FRONT_SENSOR 0;
+int FRONT_SENSOR = 0;
 int MID_SENSOR = 0;
 int LEFT_SENSOR = 0;
 int RIGHT_SENSOR = 0;
 int BACK_SENSOR = 0;
-
-
 
 unsigned lineCount = 0;
 int stajsonNr = 0;
@@ -58,12 +55,12 @@ void setup() {
   pinMode(backPin, INPUT);
 
   // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
-  }
-  Serial.println("Connected to WiFi");
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi...");
+  // }
+  // Serial.println("Connected to WiFi");
 
   // Input fra bruker (serial monitor)
   // Serial.println(" ");
@@ -74,16 +71,15 @@ void setup() {
   // delay(2000);
 
   stajsonNr = 2;
-  forward();
-  delay(10000);
-  backward();
-  delay(10000);
-  left();
-  delay(10000);
-  right();
-  delay(10000);
+  // forward();
+  // delay(10000);
+  // backward();
+  // delay(10000);
+  // left();
+  // delay(10000);
+  // right();
+  // delay(10000);
 }
-
 
 void loop() {
   FRONT_SENSOR = digitalRead(frontPin);
@@ -94,48 +90,54 @@ void loop() {
 
   HTTPClient http;
 
-  while (true) {
-    http.begin("http://172.20.10.2:4000/dashboard/api/bestilling");
-    int httpResponseCode = http.GET();
-    String payload = http.getString();
+  // while (true) {
+  //   http.begin("http://172.20.10.2:4000/dashboard/api/bestilling");
+  //   int httpResponseCode = http.GET();
+  //   String payload = http.getString();
 
-    StaticJsonDocument<384> doc;
-    Serial.print("payload:");
-    Serial.println(payload);
-    DeserializationError error = deserializeJson(doc, payload);
+  //   StaticJsonDocument <384> doc;
+  //   Serial.print("payload:");
+  //   Serial.println(payload);
+  //   DeserializationError error = deserializeJson(doc, payload);
 
-    if (error) {
-      Serial.print("deserializeJson() failed: ");
-      Serial.println(error.c_str());
-      http.end();
-      continue;
-    }
+  //   if (error) {
+  //     Serial.print("deserializeJson() failed: ");
+  //     Serial.println(error.c_str());
+  //     http.end();
+  //     continue;
+  //   }
 
-    const char* id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
-    const char* bruker = doc["bruker"]; // "mos"
-    int dropSted = doc["dropSted"]; // 4
+  //   const char * id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
+  //   const char * bruker = doc["bruker"]; // "mos"
+  //   int dropSted = doc["dropSted"]; // 4
 
-    for (JsonObject komponenter_item : doc["komponenter"].as<JsonArray>()) {
-      const char* komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
-      const char* komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
-    }
+  //   for (JsonObject komponenter_item: doc["komponenter"].as < JsonArray > ()) {
+  //     const char * komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
+  //     const char * komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
+  //   }
 
-    int v = doc["__v"]; // 0
+  //   int v = doc["__v"]; // 0
 
-    if (httpResponseCode == 200 && payload.length() > 0) {
-      // Process the JSON data
-    } else {
-      // No new JSON data available
-    }
+  //   if (httpResponseCode == 200 && payload.length() > 0) {
+  //     // Process the JSON data
+  //   } else {
+  //     // No new JSON data available
+  //   }
 
-    http.end();
+  //   http.end();
 
-    delay(60000);
+  //   delay(60000);
+  // }
+
+  // int stajsonNr = 2;
+
+  if (FRONT_SENSOR && !BACK_SENSOR && LEFT_SENSOR && RIGHT_SENSOR && MID_SENSOR) {
+    forward(); //FORWARD
+    Serial.println("kjører forward!!");
+  } else {
+    Stop();
+    Serial.println("Stopper!!");
   }
-
-  // if (RIGHT_SENSOR == 0 && LEFT_SENSOR == 0 && MID_SENSOR == 1 && BACK_SENSOR == 1 && FRONT_SENSOR == 1) {
-  //   forward(); //FORWARD
-  //   Serial.println("Fremover");
   // } else if (RIGHT_SENSOR == 0 && LEFT_SENSOR == 1 && BACK_SENSOR == 1 && FRONT_SENSOR == 1) {
   //   right(); //Move Right
   //   Serial.println("HÃ¸yre");
@@ -175,8 +177,6 @@ void loop() {
 
   // }
 }
-
-
 
 //Ikke ferdig mangler funskjoner som vektsensor osv...
 void dropSpot() {
@@ -226,50 +226,75 @@ void dropSpot() {
 
 // Ved oppstart (hente komponenter)--------------------------------
 void baseTilStasjon() {
-  if (!digitalRead(LEFT_SENSOR) && !digitalR nead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+  forward(); // Kjøre forward til kryss 
+  if (digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    left(); // Svinger til venstre kryss og kjører forward kryss
+    delay(2000);
     forward();
-    Serial.println("Fremover");
-    if(digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-      turnLeft();
-      Serial.println("Svinger venstre");
+    Serial.println("Svinger venstre & kjører forward");
+    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      left(); // Svinger til venstre kryss og kjører mot komponent
       delay(2000);
       forward();
-      Serial.println("Fremover");
-      if(digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-        turnLeft();
-        Serial.println("Svinger venstre");
-        delay(2000);
-        forward();
-        Serial.println("Fremover");
-        if(digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-          Stop();
-          Serial.println("Stoppet, framme ved statsjonen")
-        }
+      Serial.println("Svinger venstre & kjører forward");
+      if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+        Stop();
+        Serial.println("Stoppet, framme ved statsjonen");
       }
     }
   }
 }
 
-
 // Ved levering (lever komponenter)--------------------------------
 void stasjonTilD1() {
-
+  forward(); // Kjører frem til kryss
+  if (!digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    right(); // Svinger til høyre og kjører til dropsted 1 
+    delay(2000);
+    forward();
+    Serial.println("Svinger venstre & kjører forward");
+    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      Stop();
+      Serial.println("Stoppet, framme ved dropsted 1");
+    }
+  }
 }
 
 void stasjonTilD2() {
-
+  forward();
+  if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    Stop();
+    Serial.println("Stoppet, framme ved dropsted 2");
+  }
 }
-
-
 
 // Tilbake til basen--------------------------------
 
 void D1tilBase() {
-
+  forward();
+  if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    Stop();
+    Serial.println("Stoppet, framme ved ladestasjon");
+  }
 }
 
 void D2tilBase() {
-
+  forward();
+  if (digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    left(); // Svinger til venstre og kjører forward til kryss 
+    delay(2000);
+    forward();
+    Serial.println("Svinger venstre & kjører forward");
+    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      right(); // Svinger til venstre og kjører forward
+      delay(2000);
+      forward();
+      if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+        Stop();
+        Serial.println("Stoppet, framme ved ladestasjon");
+      }
+    }
+  }
 }
 
 // Andre funksjoner --------------------------------
@@ -289,55 +314,50 @@ void turnLeft() {
   delay(2000);
 }
 
-void forward()
-{
-            analogWrite(enA, M1_Speed);
-            analogWrite(enB, M1_Speed);
-            digitalWrite(in1, HIGH);
-            digitalWrite(in2, LOW);
-            digitalWrite(in3, HIGH);
-            digitalWrite(in4, LOW);
+void forward() {
+  analogWrite(enA, M1_Speed);
+  analogWrite(enB, M1_Speed);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
   Serial.println("frem");
 }
 
-void backward()
-{
+void backward() {
 
-           analogWrite(enA, M1_Speed);
-            analogWrite(enB, M1_Speed);
+  analogWrite(enA, M1_Speed);
+  analogWrite(enB, M1_Speed);
 
-            digitalWrite(in1, LOW);
-            digitalWrite(in2, HIGH);
-            digitalWrite(in3, LOW);
-            digitalWrite(in4, HIGH);
-    Serial.println("bak");
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  Serial.println("bak");
 }
 
-void right()
-{
-              analogWrite(enA, 55);
-              analogWrite(enB, 65);
-            digitalWrite(in1, LOW);
-            digitalWrite(in2, HIGH);
-            digitalWrite(in3, HIGH);
-            digitalWrite(in4, LOW);
+void right() {
+  analogWrite(enA, 55);
+  analogWrite(enB, 65);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
   Serial.println("høyre");
 }
 
-void left()
-{
+void left() {
 
-          analogWrite(enA, 65);
-          analogWrite(enB, 55);
-           digitalWrite(in1, HIGH);
-            digitalWrite(in2, LOW);
-            digitalWrite(in3, LOW);
-            digitalWrite(in4, HIGH);
+  analogWrite(enA, 65);
+  analogWrite(enB, 55);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
   Serial.println("venstre");
 }
 
-void Stop()
-{
+void Stop() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
