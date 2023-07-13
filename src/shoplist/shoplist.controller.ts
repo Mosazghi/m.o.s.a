@@ -10,6 +10,9 @@ import {
 import * as mqtt from 'mqtt';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { UserService } from 'src/user/user.service';
+// import { rateLimiterMiddleware } from './rate_limiter/rate.limiter';
+import { Throttle } from '@nestjs/throttler';
+import { RateLimit, RateLimiterGuard } from 'nestjs-rate-limiter';
 import { ShoplistService } from './shoplist.service';
 @Controller('dashboard')
 export class ShoplistController {
@@ -21,7 +24,11 @@ export class ShoplistController {
   ) {
     this.mqttClient = mqtt.connect('mqtt://10.0.0.13:1884'); // Replace with your broker URL
   }
-
+  @RateLimit({
+    points: 3,
+    duration: 60,
+    errorMessage: 'Du har nådd grensen for antall bestillinger per minutt',
+  })
   @UseGuards(AuthenticatedGuard)
   @Post('api/bestill')
   async logg(@Body() shoplist, @Session() bruker, @Res() res) {
@@ -36,7 +43,7 @@ export class ShoplistController {
         komponenter: komponenter,
       };
 
-      // Publisere shoplisten til MQTT brokerem
+      // Publiser shoplisten til MQTT brokerem
       this.mqttClient.publish('shoplist', JSON.stringify(shoplistOrder));
 
       res.send({ user, dropSted, komponenter });
