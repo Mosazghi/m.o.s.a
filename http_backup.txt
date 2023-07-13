@@ -1,0 +1,40 @@
+ HTTPClient http;
+
+  // while (true) {
+  //   http.begin("http://172.20.10.2:4000/dashboard/api/bestilling");
+  //   int httpResponseCode = http.GET();
+  //   String payload = http.getString();
+
+  //   StaticJsonDocument <384> doc;
+  //   Serial.print("payload:");
+  //   Serial.println(payload);
+  //   DeserializationError error = deserializeJson(doc, payload);
+
+  //   if (error) {
+  //     Serial.print("deserializeJson() failed: ");
+  //     Serial.println(error.c_str());
+  //     http.end();
+  //     continue;
+  //   }
+
+  //   const char * id = doc["_id"]; // "64a5bc8d247ec5276ebc856e"
+  //   const char * bruker = doc["bruker"]; // "mos"
+  //   int dropSted = doc["dropSted"]; // 4
+
+  //   for (JsonObject komponenter_item: doc["komponenter"].as < JsonArray > ()) {
+  //     const char * komponenter_item_Komponent = komponenter_item["Komponent"]; // "Bryter", "LED", ...
+  //     const char * komponenter_item_Antall = komponenter_item["Antall"]; // "3", "2", "3"
+  //   }
+
+  //   int v = doc["__v"]; // 0
+
+  //   if (httpResponseCode == 200 && payload.length() > 0) {
+  //     // Process the JSON data
+  //   } else {
+  //     // No new JSON data available
+  //   }
+
+  //   http.end();
+
+  //   delay(60000);
+  // }
