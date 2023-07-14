@@ -77,6 +77,8 @@ async function sendData() {
       body: JSON.stringify(shoplist),
     });
     const data = await res.json();
+    disableButton();
+    setButtonDisabled();
     console.log('SENT: ', data, 'av: ', data.user.username);
   } catch (error) {
     console.error(error);
@@ -117,4 +119,33 @@ async function getKomponenter() {
     );
   });
 }
+
+// -------------------Disable bestill button i 60 sec--------------------
+function disableButton() {
+  const button = document.getElementById('bestill-button');
+  const buttonDisabled = localStorage.getItem('buttonDisabled');
+  let remainingTime = 0;
+
+  if (buttonDisabled) {
+    remainingTime = parseInt(buttonDisabled) - Date.now();
+  }
+
+  if (remainingTime > 0) {
+    button.disabled = true;
+    setTimeout(() => {
+      button.disabled = false;
+      localStorage.removeItem('buttonDisabled');
+    }, remainingTime);
+  }
+}
+
+function setButtonDisabled() {
+  const button = document.getElementById('bestill-button');
+  const expirationTime = Date.now() + 60000; // Sett til 60000 for 1 min
+
+  button.disabled = true;
+  localStorage.setItem('buttonDisabled', expirationTime);
+}
+
 getKomponenter();
+window.addEventListener('load', disableButton);
