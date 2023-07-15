@@ -18,9 +18,7 @@ export class ShoplistController {
   constructor(
     private readonly shoplistService: ShoplistService,
     private readonly userService: UserService,
-  ) {
-    this.mqttClient = mqtt.connect('mqtt://10.0.0.13:1884'); // Replace with your broker URL
-  }
+  ) {}
 
   @UseGuards(AuthenticatedGuard)
   @Post('api/bestill')
@@ -31,15 +29,9 @@ export class ShoplistController {
     if (komponenter.length > 0) {
       const user = await this.userService.findById(bruker.passport.user);
 
-      const shoplistOrder = {
-        dropSted: dropSted,
-        komponenter: komponenter,
-      };
+      console.log('shoplist:', shoplist);
 
-      // Publiser shoplisten til MQTT brokerem
-      this.mqttClient.publish('shoplist', JSON.stringify(shoplistOrder));
-
-      res.send({ user, dropSted, komponenter });
+      res.send({ user, dropSted, komponenter }); // Respond med bruker, dropSted og komponenter
 
       return await this.shoplistService.bestillKomponenter(
         user.username,
