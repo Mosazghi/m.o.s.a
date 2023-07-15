@@ -36,7 +36,7 @@ export class ShoplistController {
         komponenter: komponenter,
       };
 
-      // Publiser shoplisten til MQTT brokerem
+      // Publiser shoplisten til MQTT brokeren.
       this.mqttClient.publish('shoplist', JSON.stringify(shoplistOrder));
 
       res.send({ user, dropSted, komponenter });
