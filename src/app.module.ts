@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { KomponentModule } from './komponent/komponent.module';
 import { ShoplistModule } from './shoplist/shoplist.module';
 import { UserModule } from './user/user.module';
+import { MqttModule } from './mqtt/mqtt.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     ShoplistModule,
     KomponentModule,
+    MqttModule,
   ],
   controllers: [AppController],
   providers: [AppService],
