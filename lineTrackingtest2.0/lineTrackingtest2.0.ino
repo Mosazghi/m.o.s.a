@@ -49,11 +49,12 @@ unsigned lineCount = 0;
 int stajsonNr = 0;
 
 int dropSted;
+int prevDropSted = 0;
 
 // millis delay ---------------------
 unsigned long previousMillis = 0;  // 
+const long interval = 1200;  
 
-const long interval = 2000;  
 
 // Setup --------------------
 void setup() {
@@ -71,31 +72,32 @@ void setup() {
   pinMode(leftPin, INPUT);
   pinMode(rightPin, INPUT);
   pinMode(backPin, INPUT);
+  
 
-  // WiFi tilkobling
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
-  }
-  Serial.println("Connected to WiFi");
+  // // WiFi tilkobling
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi...");
+  // }
+  // Serial.println("Connected to WiFi");
 
-  // Tilbkopling til MQTT
-  mqttClient.setServer(mqttBroker, mqttPort);
-  mqttClient.setCallback(mqttCallback);
-  mqttClient.subscribe("shoplist");
+  // // Tilbkopling til MQTT
+  // mqttClient.setServer(mqttBroker, mqttPort);
+  // mqttClient.setCallback(mqttCallback);
+  // mqttClient.subscribe("shoplist");
 
-  while (!mqttClient.connected()) {
-    if (mqttClient.connect("ArduinoClient")) {
-      mqttClient.subscribe("shoplist");  
-      Serial.println("Tilkoblet MQTT!");
-    } else {
-      Serial.println("MQTT timeout, prøver igjen...");
-      delay(5000);
-    }
-  }
+  // while (!mqttClient.connected()) {
+  //   if (mqttClient.connect("ArduinoClient")) {
+  //     mqttClient.subscribe("shoplist");  
+  //     Serial.println("Tilkoblet MQTT!");
+  //   } else {
+  //     Serial.println("MQTT timeout, prøver igjen...");
+  //     delay(5000);
+  //   }
+  // }
 
-  //// Testing av robot
+  // Testing av robot
   // forward();
   // delay(10000);
   // backward();
@@ -104,17 +106,28 @@ void setup() {
   // delay(10000);
   // right();
   // delay(10000);
+  Serial.println("TESTING FERDIG!");
 }
 
-int prevDropSted = 0;
 void loop() {
-   if (!mqttClient.connected()) {
-    // Reconnect til MQTT hvis tilkobling er brutt
-    if (mqttClient.connect("ArduinoClient")) {
-      mqttClient.subscribe("shoplist");   
+  if(!LEFT_SENSOR && !RIGHT_SENSOR && (MID_SENSOR || FRONT_SENSOR || BACK_SENSOR)) {
+    forward();
+    Serial.println("kjører til basen!");
+    if (LEFT_SENSOR &&  !RIGHT_SENSOR && (MID_SENSOR || FRONT_SENSOR || BACK_SENSOR)) {
+      stopAndTurnAround();
+      Serial.println("Stoppet, framme ved ladestasjon");
     }
+  } else {
+    Serial.println("ikke oppfylt!");
+    stopAndTurnAround();
   }
-  mqttClient.loop();
+  //  if (!mqttClient.connected()) {
+  //   // Reconnect til MQTT hvis tilkobling er brutt
+  //   if (mqttClient.connect("ArduinoClient")) {
+  //     mqttClient.subscribe("shoplist");   
+  //   }
+  // }
+  // mqttClient.loop();
 
   // IR sensorer
   FRONT_SENSOR = digitalRead(frontPin);
@@ -133,22 +146,28 @@ void loop() {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    if(getDropSted() != -1) {
-      // Vår hovedfunksjoner skal være inne her (ny bestilling):
-      baseTilStasjon();
-      if(dropSted == 1) {
-        stasjonTilD1();
-        D1tilBase();
-      }
-      else {
-        stasjonTilD2();
-        D2tilBase();
-      }
-    }
-    else {
-      Serial.println("ingen ny dropsted!");
-      Serial.println(prevDropSted);
-    }
+    // if(getDropSted() != -1) {
+    //   // Vår hovedfunksjoner skal være inne her (ny bestilling):
+    //   baseTilStasjon();
+    //   if(dropSted == 1) {
+    //     stasjonTilD1();
+    //     D1tilBase();
+    //   }
+    //   else {
+    //     stasjonTilD2();
+    //     D2tilBase();
+    //   }
+    // }
+    // else {
+    //   Serial.println("ingen ny dropsted!");
+    //   Serial.println(prevDropSted);
+    // }
+    FRONT_SENSOR ? Serial.println("f_S 1") : Serial.println("f_s 0");
+    MID_SENSOR ? Serial.println("m_S 1") : Serial.println("m_s 0");
+    LEFT_SENSOR ? Serial.println("l_S 1") : Serial.println("l_s 0");
+    RIGHT_SENSOR ? Serial.println("r_S 1") : Serial.println("r_s 0");
+    BACK_SENSOR ? Serial.println("b_S 1") : Serial.println("b_s 0");
+
   }
 }
 
@@ -161,17 +180,17 @@ void loop() {
 void baseTilStasjon() {
   Serial.println("Kjører til stasjonen!");
   forward(); // Kjøre forward til kryss 
-  if (digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+  if (LEFT_SENSOR && !RIGHT_SENSOR && MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
     left(); // Svinger til venstre kryss og kjører forward kryss
     delay(2000);
     forward();
     Serial.println("Svinger venstre & kjører forward");
-    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    if (LEFT_SENSOR && RIGHT_SENSOR && MID_SENSOR && !FRONT_SENSOR && BACK_SENSOR) {
       left(); // Svinger til venstre kryss og kjører mot komponent
       delay(2000);
       forward();
       Serial.println("Svinger venstre & kjører forward");
-      if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      if (LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
         stopAndTurnAround();
         Serial.println("Stoppet, framme ved statsjonen");
       }
@@ -183,12 +202,12 @@ void baseTilStasjon() {
 void stasjonTilD1() {
   Serial.println("Kjører til D1!");
   forward(); // Kjører frem til kryss
-  if (!digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+  if (!LEFT_SENSOR && RIGHT_SENSOR && MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
     right(); // Svinger til høyre og kjører til dropsted 1 
     delay(2000);
     forward();
     Serial.println("Svinger venstre & kjører forward");
-    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    if (LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
       stopAndTurnAround();
       Serial.println("Stoppet, framme ved dropsted 1");
     }
@@ -198,7 +217,7 @@ void stasjonTilD1() {
 void stasjonTilD2() {
   Serial.println("Kjører til D2!");
   forward();
-  if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+  if (LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
     stopAndTurnAround();
     Serial.println("Stoppet, framme ved dropsted 2");
   }
@@ -206,27 +225,29 @@ void stasjonTilD2() {
 
 // Tilbake til basen--------------------------------
 void D1tilBase() {
-  Serial.println("kjører til basen!");
-  forward();
-  if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-    stopAndTurnAround();
-    Serial.println("Stoppet, framme ved ladestasjon");
+  if(LEFT_SENSOR && RIGHT_SENSOR && MID_SENSOR && FRONT_SENSOR && !BACK_SENSOR) {
+    forward();
+    Serial.println("kjører til basen!");
+    if (LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
+      stopAndTurnAround();
+      Serial.println("Stoppet, framme ved ladestasjon");
+    }
   }
 }
 
 void D2tilBase() {
   Serial.println("kjører til basen!");
   forward();
-  if (digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+  if (LEFT_SENSOR && !RIGHT_SENSOR && MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
     left(); // Svinger til venstre og kjører forward til kryss 
     delay(2000);
     forward();
     Serial.println("Svinger venstre & kjører forward");
-    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    if (LEFT_SENSOR && RIGHT_SENSOR && MID_SENSOR && !FRONT_SENSOR && BACK_SENSOR) {
       right(); // Svinger til venstre og kjører forward
       delay(2000);
       forward();
-      if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      if (LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && FRONT_SENSOR && BACK_SENSOR) {
         stopAndTurnAround();
         Serial.println("Stoppet, framme ved ladestasjon");
       }
@@ -253,6 +274,7 @@ void turnLeft() {
 void forward() {
   analogWrite(enA, M1_Speed);
   analogWrite(enB, M1_Speed);
+  
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
@@ -272,8 +294,8 @@ void backward() {
 }
 
 void right() {
-  analogWrite(enA, 55);
-  analogWrite(enB, 65);
+  analogWrite(enA, 70);
+  analogWrite(enB, 85);
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, HIGH);
@@ -283,8 +305,8 @@ void right() {
 
 void left() {
 
-  analogWrite(enA, 65);
-  analogWrite(enB, 55);
+  analogWrite(enA, 85);
+  analogWrite(enB, 70);
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
@@ -298,18 +320,18 @@ void stopAndTurnAround() {
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
   
-  delay(500);   
+  // delay(500);   
 
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  // digitalWrite(in1, HIGH);
+  // digitalWrite(in2, LOW);
+  // digitalWrite(in3, LOW);
+  // digitalWrite(in4, HIGH);
   
-  delay(1000);   
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  // delay(1000);   
+  // digitalWrite(in1, LOW);
+  // digitalWrite(in2, LOW);
+  // digitalWrite(in3, LOW);
+  // digitalWrite(in4, LOW);
 }
 
 
