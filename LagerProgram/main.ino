@@ -3,7 +3,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-//Lager lager("Abdi", "zxqp2111", D1);
+Lager lager("Abdi", "zxqp2111", D1);
 
 Vare vare;
 
