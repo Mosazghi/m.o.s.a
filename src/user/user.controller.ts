@@ -19,7 +19,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/register')
-  async createUser(@Res() res, @Body() createUserDto: CreateUserDto) {
+  async createUser(@Res() res: any, @Body() createUserDto: CreateUserDto) {
     const newUser = this.userService.createUser(createUserDto);
     console.log('New User:', newUser);
     if ((await newUser) !== null) {
