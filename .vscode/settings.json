@@ -2,6 +2,8 @@
   "cSpell.words": ["bestillinger"],
   "files.associations": {
     "*.css": "tailwindcss",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "xstring": "cpp",
+    "functional": "cpp"
   }
 }

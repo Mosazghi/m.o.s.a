@@ -19,7 +19,7 @@ export class ShoplistController {
     private readonly shoplistService: ShoplistService,
     private readonly userService: UserService,
   ) {
-    this.mqttClient = mqtt.connect('mqtt://10.0.0.13:1884'); // Replace with your broker URL
+    this.mqttClient = mqtt.connect('mqtt://10.0.0.13:1883'); // Replace with your broker URL
   }
 
   @UseGuards(AuthenticatedGuard)

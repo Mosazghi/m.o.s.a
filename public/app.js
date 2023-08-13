@@ -141,7 +141,7 @@ function disableButton() {
 
 function setButtonDisabled() {
   const button = document.getElementById('bestill-button');
-  const expirationTime = Date.now() + 60000; // Sett til 60000 for 1 min
+  const expirationTime = Date.now() + 1000; // Sett til 60000 for 1 min
 
   button.disabled = true;
   localStorage.setItem('buttonDisabled', expirationTime);

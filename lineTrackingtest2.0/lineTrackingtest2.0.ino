@@ -1,10 +1,7 @@
-// Bibliotker --------------------
 
-//#include <WiFi.h>   
-//#include <PubSubClient.h>
-//#include <HTTPClient.h>
-//#include <ArduinoJson.h>
-//#include <Wire.h>
+// Bibliotker --------------------
+#include <ArduinoJson.h>
+// #include <PubSubClient.h>
 
 // Motorpinner --------------------
 // LEFT
@@ -25,14 +22,17 @@ int r4 = 12;
 #define leftPin A3
 // WiFi & MQTT --------------------
 
-const char * ssid = "Weini2.4G";
-const char * password = "20052009";
+// const char * ssid = "Didier";
+// const char * password = "didzi123";
 
-const char* mqttBroker = "10.0.0.13";
-const int mqttPort = 1884;   
+// const char* mqttBroker = "10.0.0.13";
+// const int mqttPort = 1883;   
 
-//WiFiClient wifiClient;
-//PubSubClient mqttClient(wifiClient);
+int dropSted;
+int prevDropSted = 0;
+
+// WiFiClient wifiClient;
+// PubSubClient mqttClient(wifiClient);
 
 // Motor variabler --------------------
 
@@ -46,14 +46,14 @@ int RIGHT_SENSOR = 0 ;
 unsigned lineCount = 0;
 int stajsonNr = 0;
 
-int dropSted;
-int prevDropSted = 0;
 
 // millis delay ---------------------
 unsigned long previousMillis = 0;  // will store last time LED was updated
 const long interval = 1500;  // interval at which to blink (milliseconds)
+// FLAGS
 bool reachedStation = false; 
 bool reachedDelivery = false; 
+bool turningFinished = false; 
 
 // Setup --------------------
 void setup() {
@@ -87,7 +87,7 @@ void setup() {
   // }
   // Serial.println("Connected to WiFi");
 
-  // // Tilbkopling til MQTT
+  // // // Tilbkopling til MQTT
   // mqttClient.setServer(mqttBroker, mqttPort);
   // mqttClient.setCallback(mqttCallback);
   // mqttClient.subscribe("shoplist");
@@ -127,18 +127,24 @@ void loop() {
   MID_SENSOR = digitalRead(midPin);
   LEFT_SENSOR = digitalRead(leftPin);
   RIGHT_SENSOR = digitalRead(rightPin);
-  // if(!reachedStation) {
-  //   baseTilStasjon();
-  // } else {
-  //   stasjonTilD2();
-  //   if(reachedDelivery) {
-  //     stop();
-  //     D2tilBase();
-  //   }
-  // }
- 
-  unsigned long currentMillis = millis();
 
+  /// TESTING (DROPSTED 2)
+  if(!reachedStation) {
+    baseTilStasjon();
+  } 
+  else if (reachedStation && !turningFinished && !reachedDelivery) {
+    stopAndTurnAround();
+  } 
+  else if(reachedStation && turningFinished && !reachedDelivery ) {
+    stasjonTilD2();
+     if(reachedDelivery) {
+      Serial.println("REACHED!!");
+      stop();
+    }
+  }
+
+  unsigned long currentMillis = millis();
+  // DEBUGGING
   if (currentMillis - previousMillis >= interval) {
     // save the last time you blinked the LED
     previousMillis = currentMillis;
@@ -152,10 +158,12 @@ void loop() {
 		// digitalRead(in4) ? Serial.println("in4_1") : Serial.println("in4_0");
 		// Serial.println(analogRead(enA));
 		Serial.println(reachedStation);
+		Serial.println(turningFinished);
+  	Serial.println(reachedDelivery);
 		// Serial.println("-----------------");  
   }
 
-  //---- MAIN ----
+  // ---- MAIN ----
   // unsigned long currentMillis = millis();
   // if (currentMillis - previousMillis >= interval) {
   //   previousMillis = currentMillis;
@@ -180,6 +188,7 @@ void loop() {
 
 // Test funksjoner --------------------
 
+// BLIR HOVEDSAKLIG BENYTTET FRA BASE -> STASJON
 void turnLeft() {
   // FORWARD
   if(MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
@@ -198,19 +207,20 @@ void turnLeft() {
   }
 }
 
+// SELV KORRIGERING 
 void keepStraightLine() {
   if(LEFT_SENSOR && !RIGHT_SENSOR && !MID_SENSOR) {
-    // Serial.println("KEEP RIGHT!");
+    Serial.println("KEEP RIGHT!");
     left();
   }
   else if(RIGHT_SENSOR && !LEFT_SENSOR && !MID_SENSOR) {
-    // // Serial.println("KEEP LEFT!");
+    Serial.println("KEEP LEFT!");
     right();
   }
  
 }
 
-// Enten den ene eller andre 
+
 // Ved oppstart (hente komponenter)--------------------------------
 void baseTilStasjon() {
   Serial.println("STASJONEN");
@@ -219,23 +229,19 @@ void baseTilStasjon() {
   
   // IF ARRIVED BASE, STOP AND TURN AROUND (LEFT/RIGHT) 
   if (!LEFT_SENSOR && !MID_SENSOR && !RIGHT_SENSOR) {
-    stopAndTurnAround();
-    delay(2000);
     reachedStation = true; 
   }
 }
 
 
 void stopAndTurnAround() {
-  forward();
-  delay(1000);
-  stop();
-  delay(2000);
+  Serial.println("TURNING");
   right();
   if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
     stop();
-    delay(3000);;
+    delay(2000);
     Serial.println("TURNING FINISHED!");
+    turningFinished = true; 
   }
 }
 
@@ -256,11 +262,16 @@ void stopAndTurnAround() {
 // }
 
 void stasjonTilD2() {
+  Serial.println("DRIVING TO D2");
   if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
     Serial.println("D2");
     forward();
   }
-  else if (LEFT_SENSOR && !MID_SENSOR && !RIGHT_SENSOR) {
+  else if(!LEFT_SENSOR && MID_SENSOR && RIGHT_SENSOR) {
+    // Serial.println("HER_2");
+    forward();
+  }
+  else if (LEFT_SENSOR && !MID_SENSOR && RIGHT_SENSOR) {
     stop();
     delay(2000);
     Serial.println("ARRIVED AT D2!");
@@ -346,8 +357,8 @@ void left() {
   digitalWrite(r3, LOW);
   digitalWrite(r4, HIGH);
 
-  analogWrite(enA, 55);
-  analogWrite(enB, 75);
+  analogWrite(enA, 60);
+  analogWrite(enB, 100);
 }
 
 void right() {
@@ -363,8 +374,8 @@ void right() {
   digitalWrite(r3, HIGH);
   digitalWrite(r4, LOW);
 
-  analogWrite(enA, 75);
-  analogWrite(enB, 55);
+  analogWrite(enA, 80);
+  analogWrite(enB, 60);
 }
 
 
@@ -386,27 +397,28 @@ void stop() {
   analogWrite(enB, 0);
   // Serial.println("Stopper!");
 }
-// void mqttCallback(const char* topic, byte* payload, unsigned int length) {
-//   String jsonPayload;
-//   for (int i = 0; i < length; i++) {
-//     jsonPayload += (char)payload[i];
-//   }
 
-//   StaticJsonDocument<16> filter;
-//   filter["dropSted"] = true;
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+  String jsonPayload;
+  for (unsigned long int i = 0; i < length; i++) {
+    jsonPayload += (char)payload[i];
+  }
 
-//   StaticJsonDocument<64> doc;
+  StaticJsonDocument<16> filter;
+  filter["dropSted"] = true;
 
-//   DeserializationError error = deserializeJson(doc, jsonPayload, DeserializationOption::Filter(filter));
+  StaticJsonDocument<64> doc;
 
-//   if (error) {
-//     Serial.print("deserializeJson() failed: ");
-//     Serial.println(error.c_str());
-//     return;
-//   }
+  DeserializationError error = deserializeJson(doc, jsonPayload, DeserializationOption::Filter(filter));
 
-//   dropSted = doc["dropSted"];  
-// }
+  if (error) {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.c_str());
+    return;
+  }
+
+  dropSted = doc["dropSted"];  
+}
 
 int getDropSted() {
   if (dropSted != prevDropSted) {
@@ -417,5 +429,3 @@ int getDropSted() {
     return -1; 
   }
 }
-
-
