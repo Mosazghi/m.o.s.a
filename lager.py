@@ -10,7 +10,7 @@ import requests
 # # WiFi
 # ssid = 'Weini2.4G'
 # password = '20052009'
-# url = 'http://10.0.0.13:4000/bestilling'
+# url = 'http://46.15.250.200:4000/bestilling'
 
 # intervall = 5 
 # forrige_data = ''

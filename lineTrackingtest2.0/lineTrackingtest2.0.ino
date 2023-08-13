@@ -1,7 +1,8 @@
 
-// Bibliotker --------------------
+#include "WiFiS3.h"
+#include <ArduinoMqttClient.h>
 #include <ArduinoJson.h>
-// #include <PubSubClient.h>
+#include <string.h>
 
 // Motorpinner --------------------
 // LEFT
@@ -20,24 +21,18 @@ int r4 = 12;
 #define midPin A4
 #define rightPin A5
 #define leftPin A3
+
 // WiFi & MQTT --------------------
+char ssid[] = "Weini2.4G";    // your network SSID (name)
+char pass[] = "20052009";    // your network password 
 
-// const char * ssid = "Didier";
-// const char * password = "didzi123";
-
-// const char* mqttBroker = "10.0.0.13";
-// const int mqttPort = 1883;   
-
-int dropSted;
-int prevDropSted = 0;
-
-// WiFiClient wifiClient;
-// PubSubClient mqttClient(wifiClient);
+const char broker[] = "10.0.0.13";
+int        port     = 1884;
+const char subscribe_topic[]  = "shoplist";
+const char publish_topic[]  = "shoplist";
 
 // Motor variabler --------------------
-
 int M1_Speed = 50;  
-
 
 int MID_SENSOR = 0;
 int LEFT_SENSOR = 0;
@@ -47,20 +42,30 @@ unsigned lineCount = 0;
 int stajsonNr = 0;
 
 
-// millis delay ---------------------
-unsigned long previousMillis = 0;  // will store last time LED was updated
-const long interval = 1500;  // interval at which to blink (milliseconds)
-// FLAGS
+// millis delay variabler
+unsigned long previousMillis = 0;   
+const long interval = 1500;   
+
+// flagger
 bool reachedStation = false; 
 bool reachedDelivery = false; 
 bool turningFinished = false; 
 
+int dropSted;
+int prevDropSted = 0;
+
+WiFiClient wifiClient;
+MqttClient mqttClient(wifiClient);
 // Setup --------------------
 void setup() {
   Serial.begin(9600);
 
-	pinMode(enA, OUTPUT);
-	pinMode(enB, OUTPUT);
+  while (!Serial) {
+    ; 
+  }
+
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
   pinMode(l1, OUTPUT);
   pinMode(l2, OUTPUT);
   pinMode(l3, OUTPUT);
@@ -70,37 +75,42 @@ void setup() {
   pinMode(r3, OUTPUT);
   pinMode(r4, OUTPUT);
 
-
-	
-	// Turn off motors - Initial state
- 
-
   pinMode(midPin, INPUT);
   pinMode(leftPin, INPUT);
   pinMode(rightPin, INPUT);
 
-  // // WiFi tilkobling
-  // WiFi.begin(ssid, password);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.println("Connecting to WiFi...");
-  // }
-  // Serial.println("Connected to WiFi");
+// Connect to WiFi
+  Serial.print("Attempting to connect to WPA SSID: ");
+  Serial.println(ssid);
+  while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
+    // failed, retry
+    Serial.print(".");
+    delay(5000);
+  }
 
-  // // // Tilbkopling til MQTT
-  // mqttClient.setServer(mqttBroker, mqttPort);
-  // mqttClient.setCallback(mqttCallback);
-  // mqttClient.subscribe("shoplist");
+  Serial.println("You're connected to the network");
+  Serial.println();
 
-  // while (!mqttClient.connected()) {
-  //   if (mqttClient.connect("ArduinoClient")) {
-  //     mqttClient.subscribe("shoplist");  
-  //     Serial.println("Tilkoblet MQTT!");
-  //   } else {
-  //     Serial.println("MQTT timeout, prøver igjen...");
-  //     delay(5000);
-  //   }
-  // }
+  Serial.print("Attempting to connect to the MQTT broker.");
+
+  if (!mqttClient.connect(broker, port)) {
+    Serial.print("MQTT connection failed! Error code = ");
+    Serial.println(mqttClient.connectError());
+
+    while (1);
+  }
+
+  Serial.println("You're connected to the MQTT broker!");
+
+  mqttClient.onMessage(onMqttMessage);
+
+  Serial.print("Subscribing to topic: ");
+  Serial.println(subscribe_topic);
+
+  mqttClient.subscribe(subscribe_topic);
+
+  Serial.print("Waiting for messages on topic: ");
+  Serial.println(subscribe_topic);
 
   // Serial.println("TESTING!");
   // forward();
@@ -121,7 +131,7 @@ void loop() {
   //     mqttClient.subscribe("shoplist");   
   //   }
   // }
-  // mqttClient.loop();
+  mqttClient.poll(); // holde MQTT tilkobling i live
 
   // IR sensorer
   MID_SENSOR = digitalRead(midPin);
@@ -129,66 +139,73 @@ void loop() {
   RIGHT_SENSOR = digitalRead(rightPin);
 
   /// TESTING (DROPSTED 2)
-  if(!reachedStation) {
-    baseTilStasjon();
-  } 
-  else if (reachedStation && !turningFinished && !reachedDelivery) {
-    stopAndTurnAround();
-  } 
-  else if(reachedStation && turningFinished && !reachedDelivery ) {
-    stasjonTilD2();
-     if(reachedDelivery) {
-      Serial.println("REACHED!!");
-      stop();
-    }
-  }
-
-  unsigned long currentMillis = millis();
-  // DEBUGGING
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
-    MID_SENSOR ? Serial.println("m_1") : Serial.println("m_0");
-    LEFT_SENSOR ? Serial.println("l_1") : Serial.println("l_0");
-    RIGHT_SENSOR ? Serial.println("r_1") : Serial.println("r_0");
-    Serial.println("-----------------");  
-		// digitalRead(in1) ? Serial.println("in1_1") : Serial.println("in1_0");
-		// digitalRead(in2) ? Serial.println("in2_1") : Serial.println("in2_0");
-		// digitalRead(in3) ? Serial.println("in3_1") : Serial.println("in3_0");
-		// digitalRead(in4) ? Serial.println("in4_1") : Serial.println("in4_0");
-		// Serial.println(analogRead(enA));
-		Serial.println(reachedStation);
-		Serial.println(turningFinished);
-  	Serial.println(reachedDelivery);
-		// Serial.println("-----------------");  
-  }
-
-  // ---- MAIN ----
-  // unsigned long currentMillis = millis();
-  // if (currentMillis - previousMillis >= interval) {
-  //   previousMillis = currentMillis;
-  //   if(getDropSted() != -1) {
-  //     // Vår hovedfunksjoner skal være inne her (ny bestilling):
-  //     baseTilStasjon();
-  //     if(dropSted == 1 && reachedStation) {
-  //       stasjonTilD1();
-  //       D1tilBase();
-  //     }
-  //     else if (dropSted == 2 && reachedStation){
-  //       stasjonTilD2();
-  //       D2tilBase();
-  //     }
-  //   }
-  //   else {
-  //     Serial.println("ingen ny dropsted!");
-  //     Serial.println(prevDropSted);
+  // if(!reachedStation) {
+  //   baseTilStasjon();
+  // } 
+  // else if (reachedStation && !turningFinished && !reachedDelivery) {
+  //   stopAndTurnAround();
+  // } 
+  // else if(reachedStation && turningFinished && !reachedDelivery ) {
+  //   stasjonTilD2();
+  //    if(reachedDelivery) {
+  //     Serial.println("REACHED!!");
+  //     stop();
   //   }
   // }
+
+  // unsigned long currentMillis = millis();
+  // DEBUGGING
+  // if (currentMillis - previousMillis >= interval) {
+    // save the last time you blinked the LED
+  //   previousMillis = currentMillis;
+  //   MID_SENSOR ? Serial.println("m_1") : Serial.println("m_0");
+  //   LEFT_SENSOR ? Serial.println("l_1") : Serial.println("l_0");
+  //   RIGHT_SENSOR ? Serial.println("r_1") : Serial.println("r_0");
+  //   Serial.println("-----------------");  
+    // digitalRead(in1) ? Serial.println("in1_1") : Serial.println("in1_0");
+    // digitalRead(in2) ? Serial.println("in2_1") : Serial.println("in2_0");
+    // digitalRead(in3) ? Serial.println("in3_1") : Serial.println("in3_0");
+    // digitalRead(in4) ? Serial.println("in4_1") : Serial.println("in4_0");
+    // Serial.println(analogRead(enA));
+  //   Serial.println(reachedStation);
+  //   Serial.println(turningFinished);
+  //   Serial.println(reachedDelivery);
+    // Serial.println("-----------------");  
+  // }
+
+  // ---- MAIN ----
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    if(getDropSted() != -1) {        // Hvis det er en ny bestilling
+      // Vår hovedfunksjoner skal være inne her (ny bestilling):
+      // baseTilStasjon();
+      // if(dropSted == 1 && reachedStation) {
+      //   stasjonTilD1();
+      //   D1tilBase();
+      // }
+      // else if (dropSted == 2 && reachedStation){
+      //   stasjonTilD2();
+      //   D2tilBase();
+      // }
+    }
+    else {
+      Serial.print("Ingen ny dropsted: ");
+      Serial.println(prevDropSted);
+    }
+  }
 }
 
-// Test funksjoner --------------------
 
-// BLIR HOVEDSAKLIG BENYTTET FRA BASE -> STASJON
+// Hjelpe funksjoner --------------------
+
+/**
+ * @brief Kjører roboten fremover
+ *        - blir hovedskalig benyttet fra basen -> komponentstasjon 
+ * @see forward()
+ * @see left()
+ * @see keepStraightLine()
+*/
 void turnLeft() {
   // FORWARD
   if(MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
@@ -207,7 +224,12 @@ void turnLeft() {
   }
 }
 
-// SELV KORRIGERING 
+
+/**
+ * @brief Korigerer roboten til å holde seg på en rett linje (fremover)
+ * @see left()
+ * @see right()
+*/
 void keepStraightLine() {
   if(LEFT_SENSOR && !RIGHT_SENSOR && !MID_SENSOR) {
     Serial.println("KEEP RIGHT!");
@@ -217,11 +239,33 @@ void keepStraightLine() {
     Serial.println("KEEP LEFT!");
     right();
   }
- 
+}
+
+
+/**
+ * @brief Stopper og snur roboten 180 grader
+ * @see right()
+ * @see stop()
+ * @see turningFinished
+*/
+void stopAndTurnAround() {
+  Serial.println("TURNING");
+  right();
+  if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
+    stop();
+    delay(2000);
+    Serial.println("TURNING FINISHED!");
+    turningFinished = true; 
+  }
 }
 
 
 // Ved oppstart (hente komponenter)--------------------------------
+/**
+ * @brief Kjører fra basen til komponentstasjonen
+ * @see turnLeft()
+ * @see reachedStation
+*/
 void baseTilStasjon() {
   Serial.println("STASJONEN");
   // Serial.println("Kjører til stasjonen!");
@@ -234,35 +278,39 @@ void baseTilStasjon() {
 }
 
 
-void stopAndTurnAround() {
-  Serial.println("TURNING");
-  right();
-  if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
-    stop();
+// Ved levering (droppe komponenter)--------------------------------
+
+/**
+ * @brief Kjører fra komponentstasjonen til dropsted 1
+ * @see forward()
+ * @see right()
+ * @see stopAndTurnAround()
+*/
+void stasjonTilD1() {
+  Serial.println("Kjører til D1!");
+  forward(); // Kjører frem til kryss
+  if (!digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+    right(); // Svinger til høyre og kjører til dropsted 1 
     delay(2000);
-    Serial.println("TURNING FINISHED!");
-    turningFinished = true; 
+    forward();
+    Serial.println("Svinger venstre & kjører forward");
+    if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
+      stopAndTurnAround();
+      Serial.println("Stoppet, framme ved dropsted 1");
+    }
   }
 }
 
-// // Ved levering (lever komponenter)--------------------------------
-// void stasjonTilD1() {
-//   Serial.println("Kjører til D1!");
-//   forward(); // Kjører frem til kryss
-//   if (!digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-//     right(); // Svinger til høyre og kjører til dropsted 1 
-//     delay(2000);
-//     forward();
-//     Serial.println("Svinger venstre & kjører forward");
-//     if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-//       stopAndTurnAround();
-//       Serial.println("Stoppet, framme ved dropsted 1");
-//     }
-//   }
-// }
 
+/**
+ * @brief Kjører fra komponentstasjonen til dropsted 2
+ * @see forward()
+ * @see stop()
+ * @see keepStraightLine()
+ * @see reachedDelivery
+*/
 void stasjonTilD2() {
-  Serial.println("DRIVING TO D2");
+  Serial.println("DRIVING TO D2");D1 tilbake til basen
   if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
     Serial.println("D2");
     forward();
@@ -282,42 +330,28 @@ void stasjonTilD2() {
   }
 }
 
-// // Tilbake tvoid D1tilBaseil basen--------------------------------
-// () {
-//   if(!digitalRead(LEFT_SENSOR) && !digitalRead(RIGHT_SENSOR) && digitalRead(MID_SENSOR) && !digitalRead(FRONT_SENSOR) && !digitalRead(BACK_SENSOR)) {
-//     forward();
-//     Serial.println("kjører til basen!");
-//   }
-//   if (digitalRead(LEFT_SENSOR) && digitalRead(RIGHT_SENSOR) && !digitalRead(MID_SENSOR) && digitalRead(FRONT_SENSOR) && digitalRead(BACK_SENSOR)) {
-//     stopAndTurnAround();
-//     Serial.println("Stoppet, framme ved ladestasjon");
-//   }
-// }
 
+// Ved kjøring tilbake til basen --------------------------------
+
+/**
+ * @brief Kjører fra D2 tilbake til basen
+ * @see stopAndTurnArond()
+*/
 void D2tilBase() {
   stopAndTurnAround();
 }
 
-// // Andre funksjoner --------------------------------
 
-// void intersectionDetected() {
-//   static long lastDetected = 0;
-//   if (millis() - lastDetected < 2000) {
-//     return;
-//   }
-//   lastDetected = millis(); //Sist sjekket linje */
-//   lineCount++;
-// }
+// Manuvers funksjoner --------------------------------
 
- 
-
-
+/**
+ * @brief Kjører fram 
+*/
 void forward() {
   digitalWrite(l1, LOW);
   digitalWrite(l2, HIGH);
   digitalWrite(l3, LOW);
   digitalWrite(l4, HIGH);
-
 
   digitalWrite(r1, LOW);
   digitalWrite(r2, HIGH);
@@ -328,12 +362,15 @@ void forward() {
   analogWrite(enB, M1_Speed);
 }
 
+
+/**
+ * @brief Kjører baklengs
+*/
 void backward() {
   digitalWrite(l1, HIGH);
   digitalWrite(l2, LOW);
   digitalWrite(l3, HIGH);
   digitalWrite(l4, LOW);
-
 
   digitalWrite(r1, HIGH);
   digitalWrite(r2, LOW);
@@ -344,13 +381,16 @@ void backward() {
   analogWrite(enB, M1_Speed);
 }
 
+
+/**
+ * @brief Svinger til venstre
+*/
 void left() {
   // Serial.println("LEFT!");
   digitalWrite(l1, HIGH);
   digitalWrite(l2, LOW);
   digitalWrite(l3, HIGH);
   digitalWrite(l4, LOW);
-
 
   digitalWrite(r1, LOW);
   digitalWrite(r2, HIGH);
@@ -361,13 +401,16 @@ void left() {
   analogWrite(enB, 100);
 }
 
+
+/**
+ * @brief Svinger til høyre
+*/
 void right() {
   // Serial.println("RIGHT!");
   digitalWrite(l1, LOW);
   digitalWrite(l2, HIGH);
   digitalWrite(l3, LOW);
   digitalWrite(l4, HIGH);
-
 
   digitalWrite(r1, HIGH);
   digitalWrite(r2, LOW);
@@ -379,9 +422,9 @@ void right() {
 }
 
 
- 
-
-
+/**
+ * @brief Stopper roboten
+*/
 void stop() {
   digitalWrite(l1, LOW);
   digitalWrite(l2, LOW);
@@ -398,18 +441,20 @@ void stop() {
   // Serial.println("Stopper!");
 }
 
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  String jsonPayload;
-  for (unsigned long int i = 0; i < length; i++) {
-    jsonPayload += (char)payload[i];
-  }
+
+// Andre funksjoner --------------------------------
+/**
+ * @brief Når det blir mottatt en melding fra MQTT broker (nettsiden)
+*/
+void onMqttMessage(int messageSize) {
+  Serial.print("Ny melding i topic: '");
+  Serial.println(mqttClient.messageTopic());
 
   StaticJsonDocument<16> filter;
   filter["dropSted"] = true;
 
   StaticJsonDocument<64> doc;
-
-  DeserializationError error = deserializeJson(doc, jsonPayload, DeserializationOption::Filter(filter));
+  DeserializationError error = deserializeJson(doc, mqttClient, DeserializationOption::Filter(filter));
 
   if (error) {
     Serial.print("deserializeJson() failed: ");
@@ -420,6 +465,11 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   dropSted = doc["dropSted"];  
 }
 
+
+/**
+ * @brief Setter dropSted til å være det samme som prevDropSted
+ * @return dropSted (om det er endret)
+*/
 int getDropSted() {
   if (dropSted != prevDropSted) {
     prevDropSted = dropSted; 
