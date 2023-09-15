@@ -1,13 +1,15 @@
-#include "WiFiS3.h"
-#include <ArduinoMqttClient.h>
-#include <ArduinoJson.h>
-#include <string.h>
+// #include "WiFiS3.h"
+// #include <ArduinoMqttClient.h>
+// #include <ArduinoJson.h>
+// #include <string.h>
 
 // Motorpinner --------------------
 // LEFT
 int enA = 9;
+// TOP
 int l1 = 8;
 int l2 = 7;
+//
 int l3 = 11;
 int l4 = 10;
 // RIGHT
@@ -22,49 +24,49 @@ int r4 = 12;
 #define leftPin A3
 
 // WiFi & MQTT --------------------
-char ssid[] = "Weini2.4G";    // your network SSID (name)
-char pass[] = "20052009";    // your network password 
+char ssid[] = "Weini2.4G";  // your network SSID (name)
+char pass[] = "20052009";   // your network password
 
 const char broker[] = "10.0.0.13";
-int        port     = 1884;
-const char subscribe_topic[]  = "shoplist";
-const char publish_topic[]  = "shoplist";
+int port = 1884;
+const char subscribe_topic[] = "shoplist";
+const char publish_topic[] = "shoplist";
 
 // Motor variabler --------------------
-int M1_Speed = 50;  
+int M1_Speed = 55;
 
 int MID_SENSOR = 0;
 int LEFT_SENSOR = 0;
-int RIGHT_SENSOR = 0 ;
+int RIGHT_SENSOR = 0;
 
-unsigned lineCount = 0;  //ikke i bruk 
+unsigned lineCount = 0;  //ikke i bruk
 
 int countTurns = 0;
 
- 
+
 // millis delay variabler
-unsigned long previousMillis = 0;   
-const long interval = 1500;   
+unsigned long previousMillis = 0;
+const long interval = 1500;
 
 // flagger
-bool reachedStation = true; 
-bool reachedDelivery = false; 
+bool reachedStation = true;
+bool reachedDelivery = true;
 bool reachedBase = false;
-bool turningFinished = true; 
+bool turningFinished = true;
 bool test = false;
 
 int dropSted;
 int prevDropSted = 0;
 
-WiFiClient wifiClient;
-MqttClient mqttClient(wifiClient);
+// WiFiClient wifiClient;
+// MqttClient mqttClient(wifiClient);
 
 // Setup --------------------
 void setup() {
   Serial.begin(9600);
 
   while (!Serial) {
-    ; 
+    ;
   }
 
   pinMode(enA, OUTPUT);
@@ -82,38 +84,38 @@ void setup() {
   pinMode(leftPin, INPUT);
   pinMode(rightPin, INPUT);
 
-// Connect to WiFi
-  Serial.print("Attempting to connect to WPA SSID: ");
-  Serial.println(ssid);
-  while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
-    // failed, retry
-    Serial.print(".");
-    delay(5000);
-  }
+  // // Connect to WiFi
+  //   Serial.print("Attempting to connect to WPA SSID: ");
+  //   Serial.println(ssid);
+  //   while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
+  //     // failed, retry
+  //     Serial.print(".");
+  //     delay(5000);
+  //   }
 
-  Serial.println("You're connected to the network");
-  Serial.println();
+  //   Serial.println("You're connected to the network");
+  //   Serial.println();
 
-  Serial.print("Attempting to connect to the MQTT broker.");
+  //   Serial.print("Attempting to connect to the MQTT broker.");
 
-  if (!mqttClient.connect(broker, port)) {
-    Serial.print("MQTT connection failed! Error code = ");
-    Serial.println(mqttClient.connectError());
+  //   if (!mqttClient.connect(broker, port)) {
+  //     Serial.print("MQTT connection failed! Error code = ");
+  //     Serial.println(mqttClient.connectError());
 
-    while (1);
-  }
+  //     while (1);
+  //   }
 
-  Serial.println("You're connected to the MQTT broker!");
+  //   Serial.println("You're connected to the MQTT broker!");
 
-  mqttClient.onMessage(onMqttMessage);
+  //   mqttClient.onMessage(onMqttMessage);
 
-  Serial.print("Subscribing to topic: ");
-  Serial.println(subscribe_topic);
+  //   Serial.print("Subscribing to topic: ");
+  //   Serial.println(subscribe_topic);
 
-  mqttClient.subscribe(subscribe_topic);
+  //   mqttClient.subscribe(subscribe_topic);
 
-  Serial.print("Waiting for messages on topic: ");
-  Serial.println(subscribe_topic);
+  //   Serial.print("Waiting for messages on topic: ");
+  //   Serial.println(subscribe_topic);
 
   // Serial.println("TESTING!");
   // forward();
@@ -131,53 +133,52 @@ void loop() {
   //  if (!mqttClient.connected()) {
   //    Reconnect til MQTT hvis tilkobling er brutt
   //   if (mqttClient.connect("ArduinoClient")) {
-  //     mqttClient.subscribe("shoplist");   
+  //     mqttClient.subscribe("shoplist");
   //   }
   // }
-  mqttClient.poll(); // holde MQTT tilkobling i live
+  // mqttClient.poll(); // holde MQTT tilkobling i live
 
   // IR sensorer
   MID_SENSOR = digitalRead(midPin);
   LEFT_SENSOR = digitalRead(leftPin);
   RIGHT_SENSOR = digitalRead(rightPin);
 
-  // // TESTING (DROPSTED 2)
-  // if(!reachedStation) {
-  //   baseTilStasjon();
-  // } 
-  // else if (reachedStation && !reachedDelivery && !turningFinished) {
-  //   stopAndTurnAround();
-  //   countTurns = 0;
-  // } 
-  // else if(reachedStation && !reachedDelivery && turningFinished) {
-  //   stasjonTilD2();
-  // }
-  // else if(reachedStation && reachedDelivery && !reachedBase){
-  //   D2tilBase();
-  // }
-  // else if(reachedBase) {
-  //   stop();
-  // }
-
-  
-  // TESTING DROPSTED 1
+  // TESTING (DROPSTED 2)
   if(!reachedStation) {
     baseTilStasjon();
-  } 
-  else if (reachedStation && !turningFinished && !reachedDelivery) {
+  }
+  else if (reachedStation && !reachedDelivery && !turningFinished) {
     stopAndTurnAround();
     countTurns = 0;
-  } 
+  }
   else if(reachedStation && !reachedDelivery && turningFinished) {
-    stasjonTilD1();
+    stasjonTilD2();
   }
   else if(reachedStation && reachedDelivery && !reachedBase){
-    D1tilBase();
+    D2tilBase();
   }
   else if(reachedBase) {
     stop();
   }
 
+
+  // // TESTING DROPSTED 1
+  // if(!reachedStation) {
+  //   baseTilStasjon();
+  // }
+  // else if (reachedStation && !turningFinished && !reachedDelivery) {
+  //   stopAndTurnAround();
+  //   countTurns = 0;
+  // }
+  // else if(reachedStation && !reachedDelivery && turningFinished) {
+  //   stasjonTilD1();
+  // }
+  // else if(reachedStation && reachedDelivery && !reachedBase){
+  //   D1tilBase();
+  // }
+  // else if(reachedBase) {
+  //   stop();
+  // }
 
 
   unsigned long currentMillis = millis();
@@ -188,18 +189,18 @@ void loop() {
     MID_SENSOR ? Serial.println("m_1") : Serial.println("m_0");
     LEFT_SENSOR ? Serial.println("l_1") : Serial.println("l_0");
     RIGHT_SENSOR ? Serial.println("r_1") : Serial.println("r_0");
-    Serial.println("-----------------");  
-		// digitalRead(in1) ? Serial.println("in1_1") : Serial.println("in1_0");
-		// digitalRead(in2) ? Serial.println("in2_1") : Serial.println("in2_0");
-		// digitalRead(in3) ? Serial.println("in3_1") : Serial.println("in3_0");
-		// digitalRead(in4) ? Serial.println("in4_1") : Serial.println("in4_0");
-		// Serial.println(analogRead(enA));
-		Serial.println(reachedStation);
-  	Serial.println(reachedDelivery);
-		Serial.println(turningFinished);
+    Serial.println("-----------------");
+    // digitalRead(in1) ? Serial.println("in1_1") : Serial.println("in1_0");
+    // digitalRead(in2) ? Serial.println("in2_1") : Serial.println("in2_0");
+    // digitalRead(in3) ? Serial.println("in3_1") : Serial.println("in3_0");
+    // digitalRead(in4) ? Serial.println("in4_1") : Serial.println("in4_0");
+    // Serial.println(analogRead(enA));
+    Serial.println(reachedStation);
+    Serial.println(reachedDelivery);
+    Serial.println(turningFinished);
     Serial.println(reachedBase);
     Serial.println(countTurns);
-		// Serial.println("-----------------");  
+    // Serial.println("-----------------");
   }
 
   // ---- MAIN ----
@@ -221,92 +222,8 @@ void loop() {
   //   else {
   //     Serial.println("ingen ny dropsted!");
   //     Serial.println(prevDropSted);
-  //   } 
+  //   }
   // }
-}
-
-
-// Hjelpe funksjoner --------------------
-
-/**
- * @brief Kjører roboten fremover og tar venstre svinger
- * @see forward()
- * @see left()
- * @see keepStraightLine()
-*/
-void turnLeft() {
-  // FORWARD
-  if(MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
-    // Serial.println("HER_1");
-    forward();
-  }
-  // IF LEFT LINE DETECTED, TURN LEFT
-  else if(LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
-    // Serial.println("HER_2");
-    left();
-    delay(2000);
-    countTurns++;
-  }
-  // IF OUT OF LINE, STRAIGHTEN SELF 
-  else {
-    keepStraightLine();
-    // Serial.println("HER_3");
-  }
-}
-
-
-/**
- * @brief Kjører roboten fremover og tar høyre svinger
- * @see forward()
- * @see right()
- * @see keepStraightLine()
-*/
-void turnRight(){
-  if(MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR){
-    forward();
-  }
-  else if(RIGHT_SENSOR && MID_SENSOR && !LEFT_SENSOR) {
-    right();
-    countTurns++;
-  }
-  else {
-    keepStraightLine();
-  }
-}
-
-
-/**
- * @brief Korigerer roboten til å holde seg på en rett linje (fremover)
- * @see left()
- * @see right()
-*/
-void keepStraightLine() {
-  if(LEFT_SENSOR && !RIGHT_SENSOR && !MID_SENSOR) {
-    Serial.println("KEEP RIGHT!");
-    left();
-  }
-  else if(RIGHT_SENSOR && !LEFT_SENSOR && !MID_SENSOR) {
-    Serial.println("KEEP LEFT!");
-    right();
-  }
-}
-
-
-/**
- * @brief Stopper og snur roboten 180 grader
- * @see right()
- * @see stop()
- * @see turningFinished
-*/
-void stopAndTurnAround() {                                       
-  Serial.println("TURNING");
-  turnAroundRight();
-  if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
-    // stop(); 
-    // delay(2000);
-    Serial.println("TURNING FINISHED!");
-    turningFinished = true; 
-  }
 }
 
 
@@ -320,10 +237,10 @@ void baseTilStasjon() {
   Serial.println("STASJONEN");
   // Serial.println("Kjører til stasjonen!");
   turnLeft();
-  
-  // IF ARRIVED BASE, STOP AND TURN AROUND (LEFT/RIGHT) 
+
+  // IF ARRIVED BASE, STOP AND TURN AROUND (LEFT/RIGHT)
   if (!LEFT_SENSOR && !MID_SENSOR && !RIGHT_SENSOR) {
-    reachedStation = true; 
+    reachedStation = true;
   }
 }
 
@@ -337,20 +254,20 @@ void baseTilStasjon() {
  * @see stopAndTurnAround()
 */
 void stasjonTilD1() {
-  if(!countTurns) {
+  if (!countTurns) {
     Serial.println("her!");
     turnRight();
-  }
-  else if(countTurns) {
+  } else if (countTurns) {
     Serial.println("her!!!");
     turnLeft();
   }
   if (LEFT_SENSOR && !MID_SENSOR && RIGHT_SENSOR) {
     stop();
+    delay(2000);
     Serial.println("ARRIVED AT D1!");
     reachedDelivery = true;
   }
-}  
+}
 
 
 /**
@@ -361,22 +278,19 @@ void stasjonTilD1() {
  * @see reachedDelivery
 */
 void stasjonTilD2() {
-  Serial.println("DRIVING TO D2");D1 tilbake til basen
-  if(!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
+  Serial.println("DRIVING TO D2");  //D1 tilbake til basen
+  if (!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
     Serial.println("D2");
     forward();
-  }
-  else if(!LEFT_SENSOR && MID_SENSOR && RIGHT_SENSOR) { //Ingnorer ekstra teip
+  } else if (!LEFT_SENSOR && MID_SENSOR && RIGHT_SENSOR) {  //Ingnorer ekstra teip
     // Serial.println("HER_2");
     forward();
-  }
-  else if (LEFT_SENSOR && !MID_SENSOR && RIGHT_SENSOR) {
+  } else if (LEFT_SENSOR && !MID_SENSOR && RIGHT_SENSOR) {
     stop();
     delay(2000);
     Serial.println("ARRIVED AT D2!");
     reachedDelivery = true;
-  }
-  else {
+  } else {
     keepStraightLine();
   }
 }
@@ -387,7 +301,30 @@ void stasjonTilD2() {
  * @brief Kjører fra D1 tilbake til basen
  * @see stopAndTurnAround()
 */
-void D1TilBase(){
+void D1tilBase() {
+  if (LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && !test) {
+    Serial.println("Rygger");
+    backward();
+  }
+
+  else if (!test) {
+    Serial.println("Snur");
+    turnAroundRight();
+    delay(500);
+    if (MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
+      test = true;
+    }
+  } else if (test) {
+    if (MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
+      forward();
+    } else if (!MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
+      Serial.println("Nådd basen");
+      reachedBase = true;
+      countTurns = 0;
+    } else {
+      keepStraightLine();
+    }
+  }
 }
 
 
@@ -395,13 +332,12 @@ void D1TilBase(){
  * @brief Kjører fra D2 tilbake til basen
  * @see stopAndTurnArond()
 */
-void D2tilBase(){
+void D2tilBase() {
   // byttet turningFinished -> test
   if(LEFT_SENSOR && RIGHT_SENSOR && !MID_SENSOR && !test){
     Serial.println("Rygger");
     backward();
-  }
-
+    }
   else if(!test){
     Serial.println("Snur");
     turnAroundRight();
@@ -427,6 +363,86 @@ void D2tilBase(){
   }
 } 
 
+
+// Hjelpe funksjoner --------------------
+
+/**
+ * @brief Kjører roboten fremover og tar venstre svinger
+ * @see forward()
+ * @see left()
+ * @see keepStraightLine()
+*/
+void turnLeft() {
+  // FORWARD
+  if (MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
+    // Serial.println("HER_1");
+    forward();
+  }
+  // IF LEFT LINE DETECTED, TURN LEFT
+  else if (LEFT_SENSOR || (MID_SENSOR && LEFT_SENSOR && RIGHT_SENSOR)) {
+    Serial.println("HER_2");
+    left();
+    delay(300);
+    countTurns++;
+  } else {
+    keepStraightLine();
+    // Serial.println("HER_3");
+  }
+  // IF OUT OF LINE, STRAIGHTEN SELF
+}
+
+
+/**
+ * @brief Kjører roboten fremover og tar høyre svinger
+ * @see forward()
+ * @see right()
+ * @see keepStraightLine()
+*/
+void turnRight() {
+  if (MID_SENSOR && !LEFT_SENSOR && !RIGHT_SENSOR) {
+    forward();
+  } else if (RIGHT_SENSOR || (MID_SENSOR && LEFT_SENSOR && RIGHT_SENSOR)) {
+    right();
+    delay(300);
+    countTurns++;
+  } else {
+    keepStraightLine();
+  }
+}
+
+
+/**
+ * @brief Korigerer roboten til å holde seg på en rett linje (fremover)
+ * @see left()
+ * @see right()
+*/
+void keepStraightLine() {
+  if (LEFT_SENSOR && !RIGHT_SENSOR && !MID_SENSOR) {
+    Serial.println("KEEP RIGHT!");
+    left();
+  } else if (RIGHT_SENSOR && !LEFT_SENSOR && !MID_SENSOR) {
+    Serial.println("KEEP LEFT!");
+    right();
+  }
+}
+
+
+/**
+ * @brief Stopper og snur roboten 180 grader
+ * @see right()
+ * @see stop()
+ * @see turningFinished
+*/
+void stopAndTurnAround() {
+  Serial.println("TURNING");
+  turnAroundRight();
+  if (!LEFT_SENSOR && MID_SENSOR && !RIGHT_SENSOR) {
+    // stop();
+    // delay(2000);
+    Serial.println("TURNING FINISHED!");
+    turningFinished = true;
+  }
+}
 
 // Manuvers funksjoner --------------------------------
 
@@ -473,6 +489,16 @@ void backward() {
 */
 void left() {
   // Serial.println("LEFT!");
+  // digitalWrite(l1, HIGH);
+  // digitalWrite(l2, LOW);
+  // digitalWrite(l3, HIGH);
+  // digitalWrite(l4, LOW);
+
+  // digitalWrite(r1, LOW);
+  // digitalWrite(r2, HIGH);
+  // digitalWrite(r3, LOW);
+  // digitalWrite(r4, HIGH);
+
   digitalWrite(l1, HIGH);
   digitalWrite(l2, LOW);
   digitalWrite(l3, HIGH);
@@ -483,10 +509,10 @@ void left() {
   digitalWrite(r3, LOW);
   digitalWrite(r4, HIGH);
 
-  // analogWrite(enA, 60);
+  // analogWrite(enA, 80);
   // analogWrite(enB, 100);
-  analogWrite(enA, 60);
-  analogWrite(enB, 80);
+  analogWrite(enA, 100);
+  analogWrite(enB, 200);
 }
 
 
@@ -505,8 +531,8 @@ void right() {
   digitalWrite(r3, HIGH);
   digitalWrite(r4, LOW);
 
-  analogWrite(enA, 80);
-  analogWrite(enB, 60);
+  analogWrite(enA, 200);
+  analogWrite(enB, 100);
 }
 
 void turnAroundRight() {
@@ -545,28 +571,28 @@ void stop() {
 }
 
 
-// Andre funksjoner --------------------------------
-/**
- * @brief Når det blir mottatt en melding fra MQTT broker (nettsiden)
-*/
-void onMqttMessage(int messageSize) {
-  Serial.print("Ny melding i topic: '");
-  Serial.println(mqttClient.messageTopic());
+// // Andre funksjoner --------------------------------
+// /**
+//  * @brief Når det blir mottatt en melding fra MQTT broker (nettsiden)
+// */
+// void onMqttMessage(int messageSize) {
+//   Serial.print("Ny melding i topic: '");
+//   Serial.println(mqttClient.messageTopic());
 
-  StaticJsonDocument<16> filter;
-  filter["dropSted"] = true;
+//   StaticJsonDocument<16> filter;
+//   filter["dropSted"] = true;
 
-  StaticJsonDocument<64> doc;
-  DeserializationError error = deserializeJson(doc, mqttClient, DeserializationOption::Filter(filter));
+//   StaticJsonDocument<64> doc;
+//   DeserializationError error = deserializeJson(doc, mqttClient, DeserializationOption::Filter(filter));
 
-  if (error) {
-    Serial.print("deserializeJson() failed: ");
-    Serial.println(error.c_str());
-    return;
-  }
+//   if (error) {
+//     Serial.print("deserializeJson() failed: ");
+//     Serial.println(error.c_str());
+//     return;
+//   }
 
-  dropSted = doc["dropSted"];  
-}
+//   dropSted = doc["dropSted"];
+// }
 
 
 /**
@@ -575,10 +601,9 @@ void onMqttMessage(int messageSize) {
 */
 int getDropSted() {
   if (dropSted != prevDropSted) {
-    prevDropSted = dropSted; 
+    prevDropSted = dropSted;
     return dropSted;
-  }
-  else {
-    return -1; 
+  } else {
+    return -1;
   }
 }
