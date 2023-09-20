@@ -121,7 +121,45 @@ struct ResetValues{
   int ValueInput;
 } RV;
 
+void GuessRandomVal2(String a){
+  int randomPickupVal = random(1,3);
+  int randomDropVal = random(1,3);
+  int gpValue = 0;  // guessed pickup value 
+  int gdValue = 0;  // guessed drop value
+  String gPart[2];
 
+  if(a.startsWith("g")){
+    int gSplit = splitString(a, ' ', gPart);
+    for(int i = 0; i < gSplit; i++){
+      if(gPart[i].startsWith("gp")){
+        gpValue = gPart[i].substring(2).toInt();
+        Serial.print("pickup value: "); Serial.println(gpValue);
+      }
+      if(gPart[i].startsWith("gd")){
+        gdValue = gPart[i].substring(2).toInt();
+        Serial.print("drop value: "); Serial.println(gdValue);
+      }
+    } 
+  }
+
+  if(gpValue >= 1 && gpValue <= 3 && gdValue >= 1 && gdValue <=3){
+    bool bothChoicesCorrect = gpValue == randomPickupVal && gdValue == randomDropVal;
+    bool oneIsCorrect = gpValue == randomPickupVal || gdValue == randomDropVal;
+    bool bothChoicesWrong = gpValue != randomPickupVal && gdValue != randomDropVal;
+
+    if(bothChoicesCorrect)
+      Serial.println("\nCongrats, you guessed both correct pickup value and drop value!");
+        
+    if(oneIsCorrect){
+      Serial.print("You guessed one correct! ");
+      Serial.println(gpValue == randomPickupVal ? "pickup value was correct!" : "pickup value was wrong :(");
+      Serial.println(gdValue == randomDropVal ? "drop value was correct!" : "drop value was wrong :(");
+    }
+
+    if(bothChoicesWrong)
+      Serial.println("Too bad both choices are wrong!");
+    }
+}
 
 
 
