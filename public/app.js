@@ -11,21 +11,22 @@ for (let i = 0; i < buttons.length; i++) {
 //--------------------Legger til komponenter i tabell--------------------
 const liste = document.getElementById('liste').getElementsByTagName('tbody')[0]; // tabell body
 const leggMerButton = document.getElementById('legg-mer-button');
-
-//create a new variable that checks if it's "velg komponent" or empty string
+const antall = document.getElementById('antall');
 
 leggMerButton.addEventListener('click', () => {
   const valgtKomponent = document.getElementById('komponent').value;
   const erUgyldig =
     valgtKomponent === 'Velg komponent' || valgtKomponent === '';
 
-  if (!erUgyldig) {
+  if (!erUgyldig && antall.value > 0) {
     let row = liste.insertRow();
     let kompNavn = row.insertCell(0);
     let ant = row.insertCell(1);
+    kompNavn.classList.add('border');
+    ant.classList.add('border');
 
     kompNavn.innerHTML = valgtKomponent;
-    ant.innerHTML = document.getElementById('antall').value;
+    ant.innerHTML = antall.value;
 
     for (let i = 0; i < liste.rows.length - 1; i++) {
       if (liste.rows[i].cells[0].innerHTML === kompNavn.innerHTML) {
