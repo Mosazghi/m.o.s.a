@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.drop-button {
+  @apply cursor-pointer w-auto h-auto text-sm p-0 md:p-2  md:text-base  rounded-lg font-bold touch-manipulation transition-shadow;
+}
